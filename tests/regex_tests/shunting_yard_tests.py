@@ -1,5 +1,5 @@
 import unittest
-from src.regex.shunting_yard import *;
+from src.regex.shunting_yard import *
 import src.regex.shunting_yard as sy
 
 

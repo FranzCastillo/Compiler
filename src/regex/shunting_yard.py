@@ -1,9 +1,12 @@
-EPSILON = 'ε'
-KLEENE_STAR = '*'
-CONCAT = '.'
-UNION = '|'
-OPEN_PAREN = '('
-CLOSE_PAREN = ')'
+from src.regex.operators import Operator
+
+
+EPSILON = Operator.EPSILON.value
+KLEENE_STAR = Operator.KLEENE_STAR.value
+CONCAT = Operator.CONCAT.value
+UNION = Operator.UNION.value
+OPEN_PAREN = Operator.OPEN_PAREN.value
+CLOSE_PAREN = Operator.CLOSE_PAREN.value
 
 precedence = {
     KLEENE_STAR: 3,
