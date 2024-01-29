@@ -18,7 +18,7 @@ class State:
     def add_transition(self, symbol, state):
         """
         Add a transition to another state.
-        add_trabsition('a', state)
+        add_transition('a', state)
         a -> state
         :param symbol:
         :param state:

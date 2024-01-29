@@ -36,7 +36,15 @@ def add_kleene(frag):
     return Fragment(start, out)
 
 
-def parse_regex(regex):
+def add_symbol(symbol):
+    """Add a symbol to a fragment"""
+    start = State()
+    out = State()
+    start.add_transition(symbol, out)
+    return Fragment(start, out)
+
+
+def build_automaton(regex):
     """Parse a postfix regular expression into a fragment"""
     stack = []
     for char in regex:
@@ -52,7 +60,7 @@ def parse_regex(regex):
             frag = stack.pop()
             stack.append(add_kleene(frag))
         else:
-            stack.append(Fragment(State(), State()))
+            stack.append(add_symbol(char))
     return stack.pop()
 
 
@@ -60,15 +68,18 @@ class NFA:
     """
     A non-deterministic finite automaton.
     """
+
     def __init__(self, regex):
-        self.start = State()
-        self.end = State(is_accepting=True)
         self.regex = regex
+        self.start = None
+        self.end = None
+        self.accepting_states = self.end
         self.automaton = None
 
         if regex == '' or regex == Operator.EPSILON.value:
             self.end = self.start
         else:
-            self.automaton = parse_regex(regex)
-            self.start.add_epsilon_transition(self.automaton.start)
-            self.automaton.out.add_epsilon_transition(self.end)
+            self.automaton = build_automaton(regex)
+            self.start = self.automaton.start
+            self.end = self.automaton.out
+            self.end.set_is_accepting(True)
