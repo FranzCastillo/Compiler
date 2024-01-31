@@ -1,5 +1,6 @@
 from src.regex.state import State
 from src.regex.operators import Operator
+from src.regex.grammar import Grammar
 
 
 class Fragment:
@@ -64,6 +65,76 @@ def build_automaton(regex):
     return stack.pop()
 
 
+def get_states(initial_state):
+    """
+    Get the set of states that are reachable from the state.
+    :param initial_state:
+    :param state:
+    :return:
+    """
+    states = set()
+    _get_states(initial_state, states)
+    return states
+
+
+def _get_states(current_state, states):
+    """
+    Get the set of states that are reachable from the state.
+    :param state:
+    :return:
+    """
+    if current_state in states:
+        return
+    states.add(current_state)
+    for next_state in current_state.get_epsilon_transitions():
+        _get_states(next_state, states)
+
+    for symbol in current_state.transitions:
+        for next_state in current_state.transitions[symbol]:
+            _get_states(next_state, states)
+
+
+def get_alphabet(regex):
+    """
+    Get the alphabet of the regular expression.
+    :param regex:
+    :return:
+    """
+    alphabet = set()
+    operators = {op.value for op in Operator}
+    for char in regex:
+        if char not in alphabet and char not in operators:
+            alphabet.add(char)
+    return alphabet
+
+
+def get_transitions(state):
+    """
+    Get the transitions of the state.
+    :param state:
+    :return:
+    """
+    transitions = {}
+    _get_transitions(state, transitions)
+    return transitions
+
+
+def _get_transitions(state, transitions):
+    """
+    Get the transitions and the epsilon transitions of the state.
+    :param state:
+    :return:
+    """
+    if state in transitions:
+        return
+    transitions[state] = {}
+    for symbol in state.transitions:
+        transitions[state][symbol] = state.transitions[symbol]
+    transitions[state][Operator.EPSILON.value] = state.epsilon_transitions
+    for next_state in state.epsilon_transitions:
+        _get_transitions(next_state, transitions)
+
+
 class NFA:
     """
     A non-deterministic finite automaton.
@@ -73,7 +144,6 @@ class NFA:
         self.regex = regex
         self.start = None
         self.end = None
-        self.accepting_states = self.end
         self.automaton = None
 
         if regex == '' or regex == Operator.EPSILON.value:
@@ -83,3 +153,16 @@ class NFA:
             self.start = self.automaton.start
             self.end = self.automaton.out
             self.end.set_is_accepting(True)
+            self.accepting_states = {self.end}
+
+    def get_grammar(self):
+        """
+        Get the grammar of the NFA.
+        :return:
+        """
+        states = get_states(self.start)
+        alphabet = get_alphabet(self.regex)
+        start = self.start.value
+        accepting_states = self.accepting_states
+        transitions = get_transitions(self.start)
+        return Grammar(states, alphabet, self.start.value, accepting_states, transitions)

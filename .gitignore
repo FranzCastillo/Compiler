@@ -152,3 +152,4 @@ cython_debug/
 .idea/
 instructions
 src/output
+src/regex/grammars
