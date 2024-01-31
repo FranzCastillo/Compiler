@@ -74,26 +74,37 @@ class ShuntingYard:
     def set_regex(self, regex):
         self.alphabet = get_alphabet(regex)
         self.regex = insert_concat_operator(regex)
-        print(self.regex)
 
     def get_postfix(self):
-        output = ''
-        stack = []
-        for char in self.regex:
-            if char in self.alphabet:
-                output += char
-            elif char == OPEN_PAREN:
-                stack.append(char)
-            elif char == CLOSE_PAREN:
-                while stack[-1] != OPEN_PAREN:
-                    output += stack.pop()
-                stack.pop()
-            else:
-                while stack and precedence[stack[-1]] >= precedence[char]:
-                    output += stack.pop()
-                stack.append(char)
 
-        while stack:
-            output += stack.pop()
+        try:
+            output = ''
+            stack = []
+            for char in self.regex:
+                if char in self.alphabet:
+                    output += char
+                elif char == OPEN_PAREN:
+                    stack.append(char)
+                elif char == CLOSE_PAREN:
+                    while stack[-1] != OPEN_PAREN:
+                        output += stack.pop()
+                    stack.pop()
+                else:
+                    while stack and precedence[stack[-1]] >= precedence[char]:
+                        output += stack.pop()
+                    stack.append(char)
 
-        return output
+            while stack:
+                output += stack.pop()
+
+            return output
+        except IndexError:
+            return "Error: Unbalanced Parentheses"
+        except KeyError:
+            return "Error: Invalid Operator"
+        except TypeError:
+            return "Error: Invalid Type for Comparison"
+        except ValueError:
+            return "Error: Invalid Value"
+        except Exception as e:
+            return f"Error: {e}"
