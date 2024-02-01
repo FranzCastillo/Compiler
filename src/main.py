@@ -10,7 +10,7 @@ def __main__():
         a+ → a.a*
         a? → a|ε
     """
-    regex = 'a.(a|b.a)*|c*.a'
+    regex = 'a(a|ba)*|c*a'
     # regex = 'a(a|b)*b'
     # regex = 'a*|b'
     sy = ShuntingYard()
@@ -21,7 +21,7 @@ def __main__():
     nfa_grammar = nfa.get_grammar()
 
     dfa = DFA(nfa_grammar)
-    dfa_grammar = dfa.get_grammar()
+    dfa_grammar = dfa.get_grammar(show_death_state=False)
 
     view = ViewAutomaton(nfa_grammar, "NFA")
     view.view("NFA")

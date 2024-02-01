@@ -72,19 +72,10 @@ class DFA:
         self.nfa_grammar = nfa_grammar
         self.grammar = self.get_grammar()
 
-    def get_grammar(self):
-        states = set()
-        alphabet = self.nfa_grammar.alphabet
-        start = self.nfa_grammar.start
-        transitions = None
-        accepting_states = None
-        # transitions = self._get_transitions()
-        # accepting_states = self._get_accepting_states()
-        dfa = self.build_dfa()
+    def get_grammar(self, show_death_state=False):
+        return self.build_dfa(show_death_state)
 
-        return dfa
-
-    def build_dfa(self):
+    def build_dfa(self, show_death_state):
         alphabet = self.nfa_grammar.alphabet
         # Create the start state by getting its epsilon closure.
         start_state = State()
@@ -140,7 +131,7 @@ class DFA:
                                 states[current_state]['transitions'][symbol] = states[state]['state']
                                 states[current_state]['state'].add_transition(symbol, states[state]['state'])
                                 break
-                else:
+                elif show_death_state:
                     states[current_state]['transitions'][symbol] = dead_state
                     states[current_state]['state'].add_transition(symbol, dead_state)
 
