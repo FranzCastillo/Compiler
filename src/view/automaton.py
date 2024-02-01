@@ -6,8 +6,8 @@ os.environ["PATH"] += os.pathsep + 'D:\\UVG\\Compiladores\\graphviz\\bin'
 
 
 class ViewAutomaton:
-    def __init__(self, automaton, type):
-        self.automaton = automaton
+    def __init__(self, grammar, type):
+        self.grammar = grammar
         self.visited = set()
         self.dot = Digraph(comment='Automaton Visualization - ' + type)
         self.dot.attr(rankdir='LR', size='8,5')
@@ -17,14 +17,15 @@ class ViewAutomaton:
     def view(self, output_name='test'):
         self.dot.node('start', shape='point')
 
-        if self.typeAutomaton == "NFA":
-            self.dot.node(str(self.automaton.end.value), shape='doublecircle')
-            self.dot.edge('start', str(self.automaton.start.value), label=Operator.EPSILON.value)
-        # if self.typeAutomaton == "DFA":
-        #     for state in self.automaton.acceptingStates:
-        #         self.dot.node(state.getValue(), shape='doublecircle')
+        for state in self.grammar.accepting_states:
+            self.dot.node(str(state.value), shape='doublecircle')
 
-        self._visualize(self.automaton.start)
+        if self.typeAutomaton == "NFA":
+            self.dot.edge('start', str(self.grammar.start.value), label=Operator.EPSILON.value)
+        else:
+            self.dot.edge('start', str(self.grammar.start.value))
+
+        self._visualize(self.grammar.start)
         self.dot.render(output_name, format='pdf', cleanup=True, directory='output')
         print(f"- Automaton saved on 'output/{output_name}.pdf'")
 
@@ -39,4 +40,3 @@ class ViewAutomaton:
         for nextState in state.epsilon_transitions:
             self.dot.edge(str(state.value), str(nextState.value), label=Operator.EPSILON.value)
             self._visualize(nextState)
-

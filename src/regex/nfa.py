@@ -154,6 +154,7 @@ class NFA:
             self.end = self.automaton.out
             self.end.set_is_accepting(True)
             self.accepting_states = {self.end}
+        self.grammar = self.get_grammar()
 
     def get_grammar(self):
         """
@@ -162,7 +163,6 @@ class NFA:
         """
         states = get_states(self.start)
         alphabet = get_alphabet(self.regex)
-        start = self.start.value
         accepting_states = self.accepting_states
         transitions = get_transitions(self.start)
-        return Grammar(states, alphabet, self.start.value, accepting_states, transitions)
+        return Grammar(states, alphabet, self.start, accepting_states, transitions)
