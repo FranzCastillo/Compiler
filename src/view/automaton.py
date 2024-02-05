@@ -6,13 +6,12 @@ os.environ["PATH"] += os.pathsep + 'D:\\UVG\\Compiladores\\graphviz\\bin'
 
 
 class ViewAutomaton:
-    def __init__(self, grammar, type):
+    def __init__(self, grammar):
         self.grammar = grammar
         self.visited = set()
-        self.dot = Digraph(comment='Automaton Visualization - ' + type)
+        self.dot = Digraph(comment='Automaton Visualization')
         self.dot.attr(rankdir='LR', size='8,5')
         self.dot.attr('node', shape='circle')
-        self.typeAutomaton = type
 
     def view(self, output_name='test'):
         self.dot.node('start', shape='point')
@@ -20,10 +19,7 @@ class ViewAutomaton:
         for state in self.grammar.accepting_states:
             self.dot.node(str(state.value), shape='doublecircle')
 
-        if self.typeAutomaton == "NFA":
-            self.dot.edge('start', str(self.grammar.start.value), label=Operator.EPSILON.value)
-        else:
-            self.dot.edge('start', str(self.grammar.start.value))
+        self.dot.edge('start', str(self.grammar.start.value))
 
         self._visualize(self.grammar.start)
         self.dot.render(output_name, format='pdf', cleanup=True, directory='output')
