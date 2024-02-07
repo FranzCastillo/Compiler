@@ -103,10 +103,16 @@ class ShuntingYard:
             elif char == CLOSE_PAREN:
                 while stack and stack[-1] != OPEN_PAREN:
                     output += stack.pop()
+
+                if not stack:
+                    raise Exception("Invalid regular expression. Mismatched parentheses.")
+
                 stack.pop()
             else:
                 output += char
 
         while stack:
+            if stack[-1] in (OPEN_PAREN, CLOSE_PAREN):
+                raise Exception("Invalid regular expression. Mismatched parentheses.")
             output += stack.pop()
         return output
