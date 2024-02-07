@@ -26,7 +26,7 @@ def add_concat(frag1, frag2):
     return Fragment(frag1.start, frag2.out)
 
 
-def add_kleene(frag):
+def add_kleene_star(frag):
     """Add a kleene star to a fragment"""
     start = State()
     out = State()
@@ -42,6 +42,24 @@ def add_symbol(symbol):
     start = State()
     out = State()
     start.add_transition(symbol, out)
+    return Fragment(start, out)
+
+def add_kleene_plus(frag):
+    """Add a kleene plus to a fragment"""
+    start = State()
+    out = State()
+    start.add_epsilon_transition(frag.start)
+    frag.out.add_epsilon_transition(out)
+    frag.out.add_epsilon_transition(frag.start)
+    return Fragment(start, out)
+
+def add_question_mark(frag):
+    """Add a question mark to a fragment"""
+    start = State()
+    out = State()
+    start.add_epsilon_transition(frag.start)
+    start.add_epsilon_transition(out)
+    frag.out.add_epsilon_transition(out)
     return Fragment(start, out)
 
 
@@ -68,7 +86,19 @@ def build_automaton(regex):
                 raise Exception("Invalid regular expression. Not enough operands for kleene star operator.")
 
             frag = stack.pop()
-            stack.append(add_kleene(frag))
+            stack.append(add_kleene_star(frag))
+        elif char == Operator.KLEENE_PLUS.symbol:
+            if len(stack) < 1:
+                raise Exception("Invalid regular expression. Not enough operands for kleene plus operator.")
+
+            frag = stack.pop()
+            stack.append(add_kleene_plus(frag))
+        elif char == Operator.QUESTION_MARK.symbol:
+            if len(stack) < 1:
+                raise Exception("Invalid regular expression. Not enough operands for question mark operator.")
+
+            frag = stack.pop()
+            stack.append(add_question_mark(frag))
         else:
             stack.append(add_symbol(char))
     return stack.pop()

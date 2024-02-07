@@ -2,14 +2,18 @@ from src.regex.operators import Operator
 
 EPSILON = Operator.EPSILON.symbol
 KLEENE_STAR = Operator.KLEENE_STAR.symbol
+KLEENE_PLUS = Operator.KLEENE_PLUS.symbol
+QUESTION_MARK = Operator.QUESTION_MARK.symbol
 CONCAT = Operator.CONCAT.symbol
 UNION = Operator.UNION.symbol
 OPEN_PAREN = Operator.OPEN_PAREN.symbol
 CLOSE_PAREN = Operator.CLOSE_PAREN.symbol
 
-operators = [KLEENE_STAR, CONCAT, UNION, ]
+operators = [KLEENE_STAR, CONCAT, UNION, KLEENE_PLUS ]
 
 precedence = {
+    QUESTION_MARK: Operator.QUESTION_MARK.precedence,
+    KLEENE_PLUS: Operator.KLEENE_PLUS.precedence,
     KLEENE_STAR: Operator.KLEENE_STAR.precedence,
     CONCAT: Operator.CONCAT.precedence,
     UNION: Operator.UNION.precedence,
@@ -18,6 +22,8 @@ precedence = {
 }
 
 associativity = {
+    QUESTION_MARK: Operator.QUESTION_MARK.associativity,
+    KLEENE_PLUS: Operator.KLEENE_PLUS.associativity,
     KLEENE_STAR: Operator.KLEENE_STAR.associativity,
     CONCAT: Operator.CONCAT.associativity,
     UNION: Operator.UNION.associativity,
@@ -62,7 +68,7 @@ def insert_concat_operator(regex):
                 should_concat = True
             elif current_char not in operators and next_char == OPEN_PAREN:
                 should_concat = True
-            elif current_char == KLEENE_STAR and (next_char not in operators or next_char == OPEN_PAREN):
+            elif (current_char == KLEENE_STAR or current_char == KLEENE_PLUS or current_char == QUESTION_MARK) and (next_char not in operators or next_char == OPEN_PAREN):
                 should_concat = True
 
             if should_concat:
