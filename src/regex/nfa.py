@@ -49,21 +49,21 @@ def build_automaton(regex):
     """Parse a postfix regular expression into a fragment"""
     stack = []
     for char in regex:
-        if char == Operator.UNION.value:
+        if char == Operator.UNION.symbol:
             if len(stack) < 2:
                 raise Exception("Invalid regular expression. Not enough operands for union operator.")
 
             frag2 = stack.pop()
             frag1 = stack.pop()
             stack.append(add_union(frag1, frag2))
-        elif char == Operator.CONCAT.value:
+        elif char == Operator.CONCAT.symbol:
             if len(stack) < 2:
                 raise Exception("Invalid regular expression. Not enough operands for concatenation operator.")
 
             frag2 = stack.pop()
             frag1 = stack.pop()
             stack.append(add_concat(frag1, frag2))
-        elif char == Operator.KLEENE_STAR.value:
+        elif char == Operator.KLEENE_STAR.symbol:
             if len(stack) < 1:
                 raise Exception("Invalid regular expression. Not enough operands for kleene star operator.")
 
@@ -110,7 +110,7 @@ def get_alphabet(regex):
     :return:
     """
     alphabet = set()
-    operators = {op.value for op in Operator}
+    operators = [Operator.KLEENE_STAR.symbol, Operator.CONCAT.symbol, Operator.UNION.symbol]
     for char in regex:
         if char not in alphabet and char not in operators:
             alphabet.add(char)
@@ -139,7 +139,7 @@ def _get_transitions(state, transitions):
     transitions[state] = {}
     for symbol in state.transitions:
         transitions[state][symbol] = state.transitions[symbol]
-    transitions[state][Operator.EPSILON.value] = state.epsilon_transitions
+    transitions[state][Operator.EPSILON.symbol] = state.epsilon_transitions
     for next_state in state.epsilon_transitions:
         _get_transitions(next_state, transitions)
 
@@ -155,7 +155,7 @@ class NFA:
         self.end = None
         self.automaton = None
 
-        if regex == '' or regex == Operator.EPSILON.value:
+        if regex == '' or regex == Operator.EPSILON.symbol:
             self.end = self.start
         else:
             self.automaton = build_automaton(regex)

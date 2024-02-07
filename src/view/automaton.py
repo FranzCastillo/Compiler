@@ -39,5 +39,5 @@ class ViewAutomaton:
                 self.dot.edge(str(state.value), str(next_state.value), label=transition)
                 self._visualize(next_state)
         for nextState in state.epsilon_transitions:
-            self.dot.edge(str(state.value), str(nextState.value), label=Operator.EPSILON.value)
+            self.dot.edge(str(state.value), str(nextState.value), label=Operator.EPSILON.symbol)
             self._visualize(nextState)

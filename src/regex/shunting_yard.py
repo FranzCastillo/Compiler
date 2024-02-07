@@ -1,18 +1,28 @@
 from src.regex.operators import Operator
 
-EPSILON = Operator.EPSILON.value
-KLEENE_STAR = Operator.KLEENE_STAR.value
-CONCAT = Operator.CONCAT.value
-UNION = Operator.UNION.value
-OPEN_PAREN = Operator.OPEN_PAREN.value
-CLOSE_PAREN = Operator.CLOSE_PAREN.value
+EPSILON = Operator.EPSILON.symbol
+KLEENE_STAR = Operator.KLEENE_STAR.symbol
+CONCAT = Operator.CONCAT.symbol
+UNION = Operator.UNION.symbol
+OPEN_PAREN = Operator.OPEN_PAREN.symbol
+CLOSE_PAREN = Operator.CLOSE_PAREN.symbol
+
+operators = [KLEENE_STAR, CONCAT, UNION, ]
 
 precedence = {
-    KLEENE_STAR: 3,
-    CONCAT: 2,
-    UNION: 1,
-    OPEN_PAREN: 0,
-    CLOSE_PAREN: 0
+    KLEENE_STAR: Operator.KLEENE_STAR.precedence,
+    CONCAT: Operator.CONCAT.precedence,
+    UNION: Operator.UNION.precedence,
+    OPEN_PAREN: Operator.OPEN_PAREN.precedence,
+    CLOSE_PAREN: Operator.CLOSE_PAREN.precedence
+}
+
+associativity = {
+    KLEENE_STAR: Operator.KLEENE_STAR.associativity,
+    CONCAT: Operator.CONCAT.associativity,
+    UNION: Operator.UNION.associativity,
+    OPEN_PAREN: Operator.OPEN_PAREN.associativity,
+    CLOSE_PAREN: Operator.CLOSE_PAREN.associativity
 }
 
 
@@ -44,14 +54,15 @@ def insert_concat_operator(regex):
         new_regex += regex[i]
         if i < length - 1:
             should_concat = False
-
-            if regex[i] not in operators and regex[i + 1] not in operators:
+            current_char = regex[i]
+            next_char = regex[i + 1]
+            if current_char not in operators and next_char not in operators:
                 should_concat = True
-            elif regex[i] == CLOSE_PAREN and regex[i + 1] not in operators:
+            elif current_char == CLOSE_PAREN and next_char not in operators:
                 should_concat = True
-            elif regex[i] not in operators and regex[i + 1] == OPEN_PAREN:
+            elif current_char not in operators and next_char == OPEN_PAREN:
                 should_concat = True
-            elif regex[i] == KLEENE_STAR and regex[i + 1] not in operators:
+            elif current_char == KLEENE_STAR and (next_char not in operators or next_char == OPEN_PAREN):
                 should_concat = True
 
             if should_concat:
@@ -63,7 +74,7 @@ def insert_concat_operator(regex):
 class ShuntingYard:
     """
     The Shunting Yard algorithm for converting infix regular expressions to postfix regular expressions.
-    https://blog.cernera.me/converting-regular-expressions-to-postfix-notation-with-the-shunting-yard-algorithm/
+    https://aquarchitect.github.io/swift-algorithm-club/Shunting%20Yard/#:~:text=The%20shunting%20yard%20algorithm%20was,being%20entered%20to%20postfix%20form.&text=The%20following%20table%20describes%20the%20precedence%20and%20the%20associativity%20for%20each%20operator./
     """
 
     def __init__(self):
@@ -78,23 +89,24 @@ class ShuntingYard:
         output = ''
         stack = []
         for char in self.regex:
-            if char in self.alphabet:
-                output += char
+            if char in operators and char != CLOSE_PAREN and char != OPEN_PAREN:
+                while (
+                        stack and
+                        stack[-1] in operators and
+                        ((associativity[char] == 'left' and precedence[char] <= precedence[stack[-1]]) or
+                         (associativity[char] == 'right' and precedence[char] < precedence[stack[-1]]))
+                ):
+                    output += stack.pop()
+                stack.append(char)
             elif char == OPEN_PAREN:
                 stack.append(char)
             elif char == CLOSE_PAREN:
-                while stack[-1] != OPEN_PAREN:
+                while stack and stack[-1] != OPEN_PAREN:
                     output += stack.pop()
                 stack.pop()
             else:
-                while stack and precedence[stack[-1]] >= precedence[char]:
-                    output += stack.pop()
-                stack.append(char)
+                output += char
 
         while stack:
-            if stack[-1] in {OPEN_PAREN, CLOSE_PAREN}:
-                raise Exception("Invalid regular expression. Mismatched parentheses.")
-
             output += stack.pop()
-
         return output
