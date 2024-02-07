@@ -6,7 +6,12 @@ os.environ["PATH"] += os.pathsep + 'D:\\UVG\\Compiladores\\graphviz\\bin'
 
 
 class ViewAutomaton:
-    def __init__(self, grammar):
+    def __init__(self):
+        self.grammar = None
+        self.visited = None
+        self.dot = None
+
+    def set_grammar(self, grammar):
         self.grammar = grammar
         self.visited = set()
         self.dot = Digraph(comment='Automaton Visualization')

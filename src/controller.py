@@ -12,7 +12,13 @@ class Controller:
         self.nfa_grammar = None
         self.dfa_grammar = None
         self.min_dfa_grammar = None
+
+        # Flag to check if the grammars have been processed.
+        # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
         self.grammars_processed = False
+
+        # Object to create the PDFs of the automata
+        self.automaton_viewer = ViewAutomaton()
 
     def process_grammars(self):
         if not self.regex:
@@ -37,19 +43,19 @@ class Controller:
         if not self.grammars_processed:
             raise Exception("Grammars not processed")
 
-        view = ViewAutomaton(self.nfa_grammar)
-        view.view(output_name)
+        self.automaton_viewer.set_grammar(self.nfa_grammar)
+        self.automaton_viewer.view(output_name)
 
     def view_dfa(self, output_name):
         if not self.grammars_processed:
             raise Exception("Grammars not processed")
 
-        view = ViewAutomaton(self.dfa_grammar)
-        view.view(output_name)
+        self.automaton_viewer.set_grammar(self.dfa_grammar)
+        self.automaton_viewer.view(output_name)
 
     def view_min_dfa(self, output_name):
         if not self.grammars_processed:
             raise Exception("Grammars not processed")
 
-        view = ViewAutomaton(self.min_dfa_grammar)
-        view.view(output_name)
+        self.automaton_viewer.set_grammar(self.min_dfa_grammar)
+        self.automaton_viewer.view(output_name)
