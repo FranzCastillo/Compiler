@@ -1,6 +1,5 @@
 from src.regex.operators import Operator
 
-
 EPSILON = Operator.EPSILON.value
 KLEENE_STAR = Operator.KLEENE_STAR.value
 CONCAT = Operator.CONCAT.value
@@ -76,35 +75,26 @@ class ShuntingYard:
         self.regex = insert_concat_operator(regex)
 
     def get_postfix(self):
+        output = ''
+        stack = []
+        for char in self.regex:
+            if char in self.alphabet:
+                output += char
+            elif char == OPEN_PAREN:
+                stack.append(char)
+            elif char == CLOSE_PAREN:
+                while stack[-1] != OPEN_PAREN:
+                    output += stack.pop()
+                stack.pop()
+            else:
+                while stack and precedence[stack[-1]] >= precedence[char]:
+                    output += stack.pop()
+                stack.append(char)
 
-        try:
-            output = ''
-            stack = []
-            for char in self.regex:
-                if char in self.alphabet:
-                    output += char
-                elif char == OPEN_PAREN:
-                    stack.append(char)
-                elif char == CLOSE_PAREN:
-                    while stack[-1] != OPEN_PAREN:
-                        output += stack.pop()
-                    stack.pop()
-                else:
-                    while stack and precedence[stack[-1]] >= precedence[char]:
-                        output += stack.pop()
-                    stack.append(char)
+        while stack:
+            if stack[-1] in {OPEN_PAREN, CLOSE_PAREN}:
+                raise Exception("Invalid regular expression. Mismatched parentheses.")
 
-            while stack:
-                output += stack.pop()
+            output += stack.pop()
 
-            return output
-        except IndexError:
-            return "Error: Unbalanced Parentheses"
-        except KeyError:
-            return "Error: Invalid Operator"
-        except TypeError:
-            return "Error: Invalid Type for Comparison"
-        except ValueError:
-            return "Error: Invalid Value"
-        except Exception as e:
-            return f"Error: {e}"
+        return output

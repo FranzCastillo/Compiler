@@ -50,14 +50,23 @@ def build_automaton(regex):
     stack = []
     for char in regex:
         if char == Operator.UNION.value:
+            if len(stack) < 2:
+                raise Exception("Invalid regular expression. Not enough operands for union operator.")
+
             frag2 = stack.pop()
             frag1 = stack.pop()
             stack.append(add_union(frag1, frag2))
         elif char == Operator.CONCAT.value:
+            if len(stack) < 2:
+                raise Exception("Invalid regular expression. Not enough operands for concatenation operator.")
+
             frag2 = stack.pop()
             frag1 = stack.pop()
             stack.append(add_concat(frag1, frag2))
         elif char == Operator.KLEENE_STAR.value:
+            if len(stack) < 1:
+                raise Exception("Invalid regular expression. Not enough operands for kleene star operator.")
+
             frag = stack.pop()
             stack.append(add_kleene(frag))
         else:

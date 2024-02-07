@@ -20,6 +20,12 @@ class Controller:
         # Object to create the PDFs of the automata
         self.automaton_viewer = ViewAutomaton()
 
+    def run(self):
+        self.process_grammars()
+        self.view_nfa("nfa")
+        self.view_dfa("dfa")
+        self.view_min_dfa("min_dfa")
+
     def process_grammars(self):
         if not self.regex:
             raise Exception("Regex not set")

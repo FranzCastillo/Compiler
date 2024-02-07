@@ -39,8 +39,13 @@ def minimize_dfa(dfa_grammar):
     accept_states = dfa_grammar.accepting_states
 
     # Create P and W
-    P = [accept_states, states - accept_states]
-    W = [accept_states, states - accept_states]
+    difference = states - accept_states
+    if difference:
+        P = [accept_states, difference]
+        W = [accept_states, difference]
+    else:
+        P = [accept_states]
+        W = [accept_states]
     # while (W is not empty) do
     while W:
         # choose and remove a set A from W
