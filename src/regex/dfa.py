@@ -64,6 +64,9 @@ def get_accepting_states(states):
         for nfa_state in states[state]['closure']:
             if nfa_state.is_accepting:
                 accepting_states.add(states[state]['state'])
+
+    for state in accepting_states:
+        state.is_accepting = True
     return accepting_states
 
 
@@ -136,7 +139,9 @@ class DFA:
                     states[current_state]['state'].add_transition(symbol, dead_state)
 
         accepting_states = get_accepting_states(states)
-        states_obj = {state: states[state]['state'] for state in states}
+        states_obj = set()
+        for state in states:
+            states_obj.add(states[state]['state'])
         transitions = get_transitions(states)
 
         return Grammar(states_obj, alphabet, start_state, accepting_states, transitions)

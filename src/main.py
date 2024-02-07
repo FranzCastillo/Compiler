@@ -11,6 +11,7 @@ def __main__():
         a+ → a.a*
         a? → a|ε
         [a-zA-Z] → a|b|c|...|z|A|B|C|...|Z
+        Error stack
     """
     # regex = 'a(a|ba)*|c*a'
     regex = 'a(a|b)*b'
@@ -23,10 +24,10 @@ def __main__():
     nfa_grammar = nfa.get_grammar()
 
     dfa = DFA(nfa_grammar)
-    dfa_grammar = dfa.get_grammar(show_death_state=False)
+    dfa_grammar = dfa.get_grammar(show_death_state=True)
 
-    # min_dfa = MinifiedDFA(dfa_grammar)
-    # min_dfa_grammar = min_dfa.get_grammar()
+    min_dfa = MinifiedDFA(dfa_grammar)
+    min_dfa_grammar = min_dfa.get_grammar()
 
     view = ViewAutomaton(nfa_grammar)
     view.view("NFA")
@@ -34,8 +35,8 @@ def __main__():
     view = ViewAutomaton(dfa_grammar)
     view.view("DFA")
 
-    # view = ViewAutomaton(min_dfa_grammar, "DFA")
-    # view.view("MinDFA")
+    view = ViewAutomaton(min_dfa_grammar)
+    view.view("MinDFA")
 
 
 if __name__ == "__main__":
