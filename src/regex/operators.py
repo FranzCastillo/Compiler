@@ -10,6 +10,8 @@ class Operator(Enum):
     UNION = ('|', 1, 'left')
     OPEN_PAREN = ('(', 0, None)
     CLOSE_PAREN = (')', 0, None)
+    OPEN_BRACKET = ('[', 0, None)
+    CLOSE_BRACKET = (']', 0, None)
 
     def __init__(self, symbol, precedence, associativity):
         self.symbol = symbol

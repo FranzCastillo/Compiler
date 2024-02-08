@@ -8,8 +8,10 @@ CONCAT = Operator.CONCAT.symbol
 UNION = Operator.UNION.symbol
 OPEN_PAREN = Operator.OPEN_PAREN.symbol
 CLOSE_PAREN = Operator.CLOSE_PAREN.symbol
+OPEN_BRACKET = Operator.OPEN_BRACKET.symbol
+CLOSE_BRACKET = Operator.CLOSE_BRACKET.symbol
 
-operators = [KLEENE_STAR, CONCAT, UNION, KLEENE_PLUS ]
+operators = [KLEENE_STAR, CONCAT, UNION, KLEENE_PLUS]
 
 precedence = {
     QUESTION_MARK: Operator.QUESTION_MARK.precedence,
@@ -68,12 +70,74 @@ def insert_concat_operator(regex):
                 should_concat = True
             elif current_char not in operators and next_char == OPEN_PAREN:
                 should_concat = True
-            elif (current_char == KLEENE_STAR or current_char == KLEENE_PLUS or current_char == QUESTION_MARK) and (next_char not in operators or next_char == OPEN_PAREN):
+            elif (current_char == KLEENE_STAR or current_char == KLEENE_PLUS or current_char == QUESTION_MARK) and (
+                    next_char not in operators or next_char == OPEN_PAREN):
                 should_concat = True
 
             if should_concat:
                 new_regex += CONCAT
 
+    return new_regex
+
+
+def expand_ranges(regex):
+    """
+    Expand the ranges in the regular expression.
+    :param regex:
+    :return:
+    """
+    stack = []
+    for char in regex:
+        if char == OPEN_BRACKET:
+            stack.append(char)
+        elif char == CLOSE_BRACKET:
+            if len(stack) == 0:
+                raise Exception("Invalid regular expression. Mismatched brackets.")
+            if len(stack) == 1:  # no range
+                stack.pop()
+            else:
+                temp = []
+                while stack[-1] != OPEN_BRACKET:
+                    temp.append(stack.pop())
+
+                if len(temp) < 2:
+                    raise Exception("Invalid regular expression. Invalid range.")
+
+                stack.pop()
+                temp.reverse()
+                stack.append(temp)
+        elif char != '-':
+            stack.append(char)
+
+    new_regex = ''
+    for char_range in stack:
+        if isinstance(char_range, list):
+            if len(char_range) % 2 != 0:
+                raise Exception("Invalid regular expression. Invalid range.")
+
+            new_regex += OPEN_PAREN
+
+            for i in range(0, len(char_range), 2):
+                lower = char_range[i]
+                upper = char_range[i + 1]
+                lower_ascii = ord(char_range[i])
+                upper_ascii = ord(char_range[i + 1])
+                if 65 <= lower_ascii <= 90 and 97 <= upper_ascii <= 122:
+                    raise Exception(
+                        "Invalid regular expression. Invalid range. Lower bound is an upper case letter and upper "
+                        "bound is a lower case letter.")
+
+                if lower_ascii > upper_ascii:  # If both are lower case letters or both are upper case letters
+                    raise Exception(
+                        "Invalid regular expression. Invalid range. Lower bound is greater than upper bound (in ASCII).")
+
+                for j in range(lower_ascii, upper_ascii + 1):
+                    new_regex += chr(j) + UNION
+
+            new_regex = new_regex[:-1]  # remove the last '|'
+            new_regex += CLOSE_PAREN
+        else:
+            new_regex += char_range
     return new_regex
 
 
@@ -88,8 +152,9 @@ class ShuntingYard:
         self.regex = None
 
     def set_regex(self, regex):
-        self.alphabet = get_alphabet(regex)
-        self.regex = insert_concat_operator(regex)
+        new_regex = expand_ranges(regex)
+        self.alphabet = get_alphabet(new_regex)
+        self.regex = insert_concat_operator(new_regex)
 
     def get_postfix(self):
         output = ''

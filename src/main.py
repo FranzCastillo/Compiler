@@ -2,21 +2,20 @@ from src.controller import Controller
 
 
 def __main__():
-    """
-    todo:
-        [a-zA-Z] → a|b|c|...|z|A|B|C|...|Z
-    """
     # regex = 'a(a|ba)*|c*a'
     # regex = 'a(a|b)*b'
-    # regex = 'a*|b'
-    regex = '(ab)+a'
+    # regex = 'a+d|b'
+    regex = 'a[a-e]*b'
 
     chain = "ab"
 
-    controller = Controller()
-    controller.regex = regex
-    controller.chain = chain
-    controller.run()
+    try:
+        controller = Controller()
+        controller.regex = regex
+        controller.chain = chain
+        controller.run()
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
