@@ -3,6 +3,7 @@ from src.regex.nfa import NFA
 from src.regex.dfa import DFA
 from src.regex.min_dfa import MinifiedDFA
 from src.view.automaton import ViewAutomaton
+from src.regex.direct import DirectDFA
 
 
 class Controller:
@@ -46,6 +47,8 @@ class Controller:
 
         min_dfa = MinifiedDFA(self.dfa_grammar)
         self.min_dfa_grammar = min_dfa.get_grammar()
+
+        direct_dfa = DirectDFA(self.regex)
 
         self.grammars_processed = True
 

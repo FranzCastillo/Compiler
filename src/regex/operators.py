@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Operator(Enum):
+    AUGMENTED = ('#', None, None)
     EPSILON = ('ε', None, None)
     KLEENE_STAR = ('*', 3, 'right')
     KLEENE_PLUS = ('+', 3, 'right')
