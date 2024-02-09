@@ -36,6 +36,7 @@ def build_syntax_tree(regex):
                     node = Node(char, left)
                     node.nullable = True
                     node.first_pos = left.first_pos
+                    node.last_pos = left.last_pos
                     stack.append(node)
                 else:
                     stack.append(Node(char, left, tag=tag))
@@ -48,12 +49,18 @@ def build_syntax_tree(regex):
                 if char == UNION:
                     node.nullable = left.nullable or right.nullable
                     node.first_pos = left.first_pos.union(right.first_pos)
+                    node.last_pos = left.last_pos.union(right.last_pos)
                 elif char == CONCAT:
                     node.nullable = left.nullable and right.nullable
                     if left.nullable:
                         node.first_pos = left.first_pos.union(right.first_pos)
                     else:
                         node.first_pos = left.first_pos
+
+                    if right.nullable:
+                        node.last_pos = left.last_pos.union(right.last_pos)
+                    else:
+                        node.last_pos = right.last_pos
 
                 stack.append(node)
 

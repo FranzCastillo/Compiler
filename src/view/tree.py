@@ -33,9 +33,11 @@ class ViewTree:
                           label=f"Valor: {node.value}\n"
                                 f"Tag: {node.tag}\n"
                                 f"Nullable: {node.nullable}\n"
-                                f"First Pos: {node.first_pos}")
+                                f"First Pos: {node.first_pos}\n"
+                                f"Last Pos: {node.last_pos}")
         else:
             self.dot.node(str(id(node)),
                           label=f"Valor: {node.value}\n"
                                 f"Nullable: {node.nullable}\n"
-                                f"First Pos: {node.first_pos}")
+                                f"First Pos: {node.first_pos}\n"
+                                f"Last Pos: {node.last_pos}")
