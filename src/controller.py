@@ -6,9 +6,8 @@ from src.view.automaton import ViewAutomaton
 
 
 class Controller:
-    def __init__(self):
-        self.regex = None
-        self.chain = None
+    def __init__(self, regex=None):
+        self.regex = regex
         self.nfa_grammar = None
         self.dfa_grammar = None
         self.min_dfa_grammar = None
@@ -20,11 +19,16 @@ class Controller:
         # Object to create the PDFs of the automata
         self.automaton_viewer = ViewAutomaton()
 
-    def run(self):
         self.process_grammars()
+
+    def view_automatons(self):
         self.view_nfa("nfa")
         self.view_dfa("dfa")
         self.view_min_dfa("min_dfa")
+
+    def set_regex(self, regex):
+        self.regex = regex
+        self.process_grammars()
 
     def process_grammars(self):
         if not self.regex:
@@ -44,6 +48,15 @@ class Controller:
         self.min_dfa_grammar = min_dfa.get_grammar()
 
         self.grammars_processed = True
+
+    def check_string_nfa(self, string):
+        return self.nfa_grammar.check_string(string)
+
+    def check_string_dfa(self, string):
+        return self.dfa_grammar.check_string(string)
+
+    def check_string_min_dfa(self, string):
+        return self.min_dfa_grammar.check_string(string)
 
     def view_nfa(self, output_name):
         if not self.grammars_processed:

@@ -44,6 +44,7 @@ def add_symbol(symbol):
     start.add_transition(symbol, out)
     return Fragment(start, out)
 
+
 def add_kleene_plus(frag):
     """Add a kleene plus to a fragment"""
     start = State()
@@ -52,6 +53,7 @@ def add_kleene_plus(frag):
     frag.out.add_epsilon_transition(out)
     frag.out.add_epsilon_transition(frag.start)
     return Fragment(start, out)
+
 
 def add_question_mark(frag):
     """Add a question mark to a fragment"""
@@ -152,9 +154,10 @@ def get_transitions(state):
     Get the transitions of the state.
     :param state:
     :return:
+    todo:
+        Just gets the transitions for the start state, need to recursively get the transitions for all states.
     """
     transitions = {}
-    _get_transitions(state, transitions)
     return transitions
 
 

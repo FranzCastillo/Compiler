@@ -2,22 +2,6 @@ from src.regex.grammar import Grammar
 from src.regex.state import State
 
 
-def get_epsilon_closure(state):
-    """
-    Get the epsilon closure of a state.
-    :param state:
-    :return:
-    """
-    closure = set()
-    stack = [state]
-    while stack:
-        current_state = stack.pop()
-        closure.add(current_state)
-        for next_state in current_state.get_epsilon_transitions():
-            if next_state not in closure:
-                stack.append(next_state)
-    return closure
-
 
 def move(states, symbol):
     """
@@ -54,7 +38,8 @@ def get_transitions(states):
     """
     transitions = {}
     for state in states:
-        transitions[state] = states[state]['transitions']
+        temp = states[state]['transitions']
+        transitions[state] = temp
     return transitions
 
 
@@ -82,7 +67,7 @@ class DFA:
         alphabet = self.nfa_grammar.alphabet
         # Create the start state by getting its epsilon closure.
         start_state = State()
-        start_closure = get_epsilon_closure(self.nfa_grammar.start)
+        start_closure = self.nfa_grammar.start.get_epsilon_closure()
         states = {
             start_state.value: {
                 'state': start_state,
@@ -102,7 +87,7 @@ class DFA:
             'marked': False
         }
         for symbol in alphabet:
-            states[dead_state.value]['transitions'][symbol] = dead_state
+            states[dead_state.value]['transitions'][symbol] = {dead_state}
             states[dead_state.value]['state'].add_transition(symbol, dead_state)
 
         # Create a map to keep track of the closure of each state.
@@ -115,7 +100,7 @@ class DFA:
                 next_states = move(states[current_state]['closure'], symbol)
                 next_closure = set()
                 for state in next_states:
-                    next_closure |= get_epsilon_closure(state)
+                    next_closure |= state.get_epsilon_closure()
                 if next_closure:
                     if next_closure not in closure_map.values():
                         new_state = State()
@@ -125,13 +110,13 @@ class DFA:
                             'transitions': {},
                             'marked': False
                         }
-                        states[current_state]['transitions'][symbol] = new_state
+                        states[current_state]['transitions'][symbol] = {new_state}
                         states[current_state]['state'].add_transition(symbol, new_state)
                         closure_map[new_state.value] = next_closure
                     else:
                         for state in states:
                             if states[state]['closure'] == next_closure:
-                                states[current_state]['transitions'][symbol] = states[state]['state']
+                                states[current_state]['transitions'][symbol] = {states[state]['state']}
                                 states[current_state]['state'].add_transition(symbol, states[state]['state'])
                                 break
                 elif show_death_state:

@@ -53,6 +53,22 @@ class State:
         """
         return self.epsilon_transitions
 
+    def get_epsilon_closure(self):
+        """
+        Get the epsilon closure of the state.
+        :return:
+        """
+        closure = set()
+        stack = [self]
+        while stack:
+            current_state = stack.pop()
+            closure.add(current_state)
+            for next_state in current_state.get_epsilon_transitions():
+                if next_state not in closure:
+                    stack.append(next_state)
+
+        return closure
+
     def get_value(self):
         """
         Get the value of the state.
