@@ -21,18 +21,35 @@ def build_syntax_tree(regex):
     :return:
     """
     stack = []
-
+    tag = 1
     for char in regex:
         if char not in operators:
-            stack.append(Node(char))
+            if char == EPSILON:
+                stack.append(Node(char, tag=EPSILON))
+            else:
+                stack.append(Node(char, tag=tag))
+                tag += 1
         else:
             if char in unary_operators:
-                right = stack.pop()
-                stack.append(Node(char, right))
-            else:
+                left = stack.pop()
+                if char == KLEENE_STAR:
+                    node = Node(char, left)
+                    node.nullable = True
+                    stack.append(node)
+                else:
+                    stack.append(Node(char, left, tag=tag))
+                    tag += 1
+            else:  # Binary operator
                 right = stack.pop()
                 left = stack.pop()
-                stack.append(Node(char, left, right))
+
+                node = Node(char, left, right)
+                if char == UNION:
+                    node.nullable = left.nullable or right.nullable
+                elif char == CONCAT:
+                    node.nullable = left.nullable and right.nullable
+
+                stack.append(node)
 
     return stack.pop()
 
@@ -43,3 +60,4 @@ class DirectDFA:
         self.postfix_regex = get_postfix(regex)
         self.augmented_regex = self.postfix_regex + Operator.AUGMENTED.symbol + CONCAT
         self.syntax_tree = build_syntax_tree(self.augmented_regex)
+

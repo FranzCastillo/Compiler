@@ -27,4 +27,13 @@ class ViewTree:
         if node.right:
             self.dot.edge(str(id(node)), str(id(node.right)))
             self._visualize(node.right)
-        self.dot.node(str(id(node)), str(node.value))
+
+        if node.tag:
+            self.dot.node(str(id(node)),
+                          label=f"Valor: {node.value}\n"
+                                f"Tag: {node.tag}\n"
+                                f"Nullable: {node.nullable}")
+        else:
+            self.dot.node(str(id(node)),
+                          label=f"Valor: {node.value}\n"
+                                f"Nullable: {node.nullable}")
