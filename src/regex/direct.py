@@ -2,6 +2,7 @@ from src.regex.operators_values import *
 from src.regex.shunting_yard import ShuntingYard
 from src.structures.node import Node
 from src.regex.state import State
+from src.regex.grammar import Grammar
 
 
 def get_postfix(regex):
@@ -99,12 +100,21 @@ def get_alphabet(regex):
 
 class DirectDFA:
     def __init__(self, regex):
-        self.alphabet = get_alphabet(regex)
+        if not regex:
+            raise Exception("Regex not set")
         self.regex = regex
+        self.alphabet = get_alphabet(regex)
         self.postfix_regex = get_postfix(regex)
         self.augmented_regex = self.postfix_regex + Operator.AUGMENTED.symbol + CONCAT
         self.syntax_tree, self.next_pos_table = build_syntax_tree(self.augmented_regex)
         self.transition_table = self._build_transition_table()
+
+    def get_grammar(self):
+        """
+        Get the grammar of the regular expression.
+        :return:
+        """
+        return self._build_grammar()
 
     def _build_transition_table(self):
         """
@@ -186,3 +196,30 @@ class DirectDFA:
             if self.next_pos_table[pos - 1]["symbol"] == symbol:
                 transition.update(self.next_pos_table[pos - 1]["next_pos"])
         return transition
+
+    def _build_grammar(self):
+        """
+        Build the grammar of the regular expression.
+        :return:
+        """
+        states = {row["state"] for row in self.transition_table}
+        alphabet = self.alphabet
+        start = self.transition_table[0]["state"]
+        accepting_states = {row["state"] for row in self.transition_table if
+                            row["positions"].intersection(self.transition_table[-1]["positions"])}
+        transitions = {}
+        for row in self.transition_table:
+            # Add the rows with no transitions
+            if not row["transitions"]:
+                transitions[row["state"]] = {}
+                row["state"].transitions[char] = {}
+                continue
+            for char in alphabet:
+                if row["transitions"].get(char):  # Gets the state that it transitions to
+                    if row["state"] not in transitions:  # If the state is not in the transitions, add it
+                        transitions[row["state"]] = {}
+
+                    transitions[row["state"]][char] = {row["transitions"][char]}
+                    row["state"].transitions[char] = {row["transitions"][char]}
+
+        return Grammar(states, alphabet, start, accepting_states, transitions)

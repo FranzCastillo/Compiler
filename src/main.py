@@ -22,6 +22,7 @@ def __main__():
     print(f"DFA ({controller.chain_accepted_dfa(chain)}):\n{controller.simulate_dfa(chain)}")
     print(f"Min DFA ({controller.chain_accepted_min_dfa(chain)}):\n{controller.simulate_min_dfa(chain)}")
     controller.view_automatons()
+    controller.view_syntax_tree()
 
 
 if __name__ == "__main__":

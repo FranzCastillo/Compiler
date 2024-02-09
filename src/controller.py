@@ -14,6 +14,7 @@ class Controller:
         self.dfa_grammar = None
         self.min_dfa_grammar = None
         self.direct_dfa = None
+        self.direct_dfa_grammar = None
 
         # Flag to check if the grammars have been processed.
         # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
@@ -26,10 +27,14 @@ class Controller:
         self.process_grammars()
 
     def view_automatons(self):
-        self.view_nfa("nfa")
-        self.view_dfa("dfa")
-        self.view_min_dfa("min_dfa")
-        self.view_direct_dfa("direct_syntax_tree")
+        self.view_nfa("NFA")
+        self.view_dfa("DFA")
+        self.view_min_dfa("MIN_DFA")
+        self.view_direct_dfa("DIRECT_DFA")
+
+    def view_syntax_tree(self):
+        self.tree_viewer.set_tree(self.direct_dfa.syntax_tree)
+        self.tree_viewer.view("SYNTAX_TREE")
 
     def set_regex(self, regex):
         self.regex = regex
@@ -52,8 +57,8 @@ class Controller:
         min_dfa = MinifiedDFA(self.dfa_grammar)
         self.min_dfa_grammar = min_dfa.get_grammar()
 
-        direct_dfa = DirectDFA(self.regex)
-        self.direct_dfa = direct_dfa.syntax_tree
+        self.direct_dfa = DirectDFA(self.regex)
+        self.direct_dfa_grammar = self.direct_dfa.get_grammar()
 
         self.grammars_processed = True
 
@@ -100,5 +105,5 @@ class Controller:
         if not self.grammars_processed:
             raise Exception("Grammars not processed")
 
-        self.tree_viewer.set_tree(self.direct_dfa)
-        self.tree_viewer.view(output_name)
+        self.automaton_viewer.set_grammar(self.direct_dfa_grammar)
+        self.automaton_viewer.view(output_name)
