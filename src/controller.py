@@ -49,14 +49,23 @@ class Controller:
 
         self.grammars_processed = True
 
-    def check_string_nfa(self, string):
-        return self.nfa_grammar.check_string(string)
+    def chain_accepted_nfa(self, string):
+        return self.nfa_grammar.is_accepted(string)
 
-    def check_string_dfa(self, string):
-        return self.dfa_grammar.check_string(string)
+    def chain_accepted_dfa(self, string):
+        return self.dfa_grammar.is_accepted(string)
 
-    def check_string_min_dfa(self, string):
-        return self.min_dfa_grammar.check_string(string)
+    def chain_accepted_min_dfa(self, string):
+        return self.min_dfa_grammar.is_accepted(string)
+
+    def simulate_nfa(self, string):
+        return self.nfa_grammar.simulate(string)
+
+    def simulate_dfa(self, string):
+        return self.dfa_grammar.simulate(string)
+
+    def simulate_min_dfa(self, string):
+        return self.min_dfa_grammar.simulate(string)
 
     def view_nfa(self, output_name):
         if not self.grammars_processed:
