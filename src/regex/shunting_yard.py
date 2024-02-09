@@ -108,6 +108,51 @@ def expand_ranges(regex):
     return new_regex
 
 
+def replace_symbols(regex):  # Replaces (a|b)+ with (a|b)(a|b)* and (a.b)? with (a.b|ε)
+    """
+    Replace the symbols '+' and '?' with their equivalent regular expressions.
+    """
+    new_regex = ''
+    for i in range(len(regex)):
+        char = regex[i]
+        if char == KLEENE_PLUS:
+            if i == 0:
+                raise Exception("Invalid regular expression. Kleene plus operator at the beginning of the regular "
+                                "expression.")
+            elif regex[i - 1] == CLOSE_PAREN:
+                content = ''
+                j = i - 2  # index of the character before close parenthesis
+                while regex[j] != OPEN_PAREN:
+                    content = regex[j] + content  # add the character to the beginning of the content
+                    j -= 1
+                new_regex += f"{CONCAT}{OPEN_PAREN}{content}{CLOSE_PAREN}{KLEENE_STAR}"
+            else:  # if the character before the kleene plus is not a close parenthesis
+                new_regex += f"{CONCAT}{regex[i - 1]}{KLEENE_STAR}"
+
+        elif char == QUESTION_MARK:
+            if i == 0:
+                raise Exception("Invalid regular expression. Question Mark operator at the beginning of the regular "
+                                "expression.")
+
+            elif regex[i - 1] == CLOSE_PAREN:
+                content = ''
+                j = i - 2  # index of the character before close parenthesis
+                while regex[j] != OPEN_PAREN:
+                    content = regex[j] + content  # add the character to the beginning of the content
+                    j -= 1
+                # Slice the regex to remove the content between the parentheses
+                new_regex = new_regex[:-len(content) - 2]
+                new_regex += f"{OPEN_PAREN}{OPEN_PAREN}{content}{CLOSE_PAREN}{UNION}{EPSILON}{CLOSE_PAREN}"
+            else:  # if the character before the question mark is not a close parenthesis
+                new_regex = new_regex[:-1]  # remove the last character
+                new_regex += f"{OPEN_PAREN}{regex[i - 1]}{UNION}{EPSILON}{CLOSE_PAREN}"
+
+        else:
+            new_regex += char
+
+    return new_regex
+
+
 class ShuntingYard:
     """
     The Shunting Yard algorithm for converting infix regular expressions to postfix regular expressions.
@@ -120,6 +165,7 @@ class ShuntingYard:
 
     def set_regex(self, regex):
         new_regex = expand_ranges(regex)
+        new_regex = replace_symbols(new_regex)
         self.alphabet = get_alphabet(new_regex)
         self.regex = insert_concat_operator(new_regex)
 

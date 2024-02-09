@@ -2,7 +2,6 @@ from src.regex.grammar import Grammar
 from src.regex.state import State
 
 
-
 def move(states, symbol):
     """
     Get the set of states that are transitioned to by the symbol.

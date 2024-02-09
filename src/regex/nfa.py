@@ -41,7 +41,10 @@ def add_symbol(symbol):
     """Add a symbol to a fragment"""
     start = State()
     out = State()
-    start.add_transition(symbol, out)
+    if symbol == Operator.EPSILON.symbol:
+        start.add_epsilon_transition(out)
+    else:
+        start.add_transition(symbol, out)
     return Fragment(start, out)
 
 
