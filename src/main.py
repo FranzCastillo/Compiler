@@ -6,9 +6,9 @@ def __main__():
     # regex = 'a(a|b)*b'
     # regex = 'a+d|b'
     # regex = 'a[a-e]*b'
-    regex = 'c?'
+    regex = '(a|b)+abc?'
 
-    chain = "abcdbveab"
+    chain = "abab"
 
     controller = Controller(regex)
     try:

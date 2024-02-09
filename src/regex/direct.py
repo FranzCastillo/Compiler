@@ -22,12 +22,14 @@ def build_syntax_tree(regex):
     """
     stack = []
     tag = 1
+    next_pos_table = []  # tag, symbol, next_pos
     for char in regex:
         if char not in operators:
             if char == EPSILON:
                 stack.append(Node(char, tag=EPSILON))
             else:
                 stack.append(Node(char, tag=tag))
+                next_pos_table.append({"tag": tag, "symbol": char, "next_pos": set()})
                 tag += 1
         else:
             if char in unary_operators:
@@ -38,6 +40,10 @@ def build_syntax_tree(regex):
                     node.first_pos = left.first_pos
                     node.last_pos = left.last_pos
                     stack.append(node)
+
+                    # Fill the next_pos_table
+                    for pos in left.last_pos:
+                        next_pos_table[pos - 1]["next_pos"].update(left.first_pos)
                 else:
                     stack.append(Node(char, left, tag=tag))
                     tag += 1
@@ -62,9 +68,13 @@ def build_syntax_tree(regex):
                     else:
                         node.last_pos = right.last_pos
 
+                    # Fill the next_pos_table
+                    for pos in left.last_pos:
+                        next_pos_table[pos - 1]["next_pos"].update(right.first_pos)
+
                 stack.append(node)
 
-    return stack.pop()
+    return stack.pop(), next_pos_table
 
 
 class DirectDFA:
@@ -72,5 +82,4 @@ class DirectDFA:
         self.regex = regex
         self.postfix_regex = get_postfix(regex)
         self.augmented_regex = self.postfix_regex + Operator.AUGMENTED.symbol + CONCAT
-        self.syntax_tree = build_syntax_tree(self.augmented_regex)
-
+        self.syntax_tree, self.next_pos_table = build_syntax_tree(self.augmented_regex)
