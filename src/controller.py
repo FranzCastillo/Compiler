@@ -3,6 +3,7 @@ from src.regex.nfa import NFA
 from src.regex.dfa import DFA
 from src.regex.min_dfa import MinifiedDFA
 from src.view.automaton import ViewAutomaton
+from src.view.tree import ViewTree
 from src.regex.direct import DirectDFA
 
 
@@ -12,6 +13,7 @@ class Controller:
         self.nfa_grammar = None
         self.dfa_grammar = None
         self.min_dfa_grammar = None
+        self.direct_dfa = None
 
         # Flag to check if the grammars have been processed.
         # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
@@ -19,6 +21,7 @@ class Controller:
 
         # Object to create the PDFs of the automata
         self.automaton_viewer = ViewAutomaton()
+        self.tree_viewer = ViewTree()
 
         self.process_grammars()
 
@@ -26,6 +29,7 @@ class Controller:
         self.view_nfa("nfa")
         self.view_dfa("dfa")
         self.view_min_dfa("min_dfa")
+        self.view_direct_dfa("direct_syntax_tree")
 
     def set_regex(self, regex):
         self.regex = regex
@@ -49,6 +53,7 @@ class Controller:
         self.min_dfa_grammar = min_dfa.get_grammar()
 
         direct_dfa = DirectDFA(self.regex)
+        self.direct_dfa = direct_dfa.syntax_tree
 
         self.grammars_processed = True
 
@@ -90,3 +95,10 @@ class Controller:
 
         self.automaton_viewer.set_grammar(self.min_dfa_grammar)
         self.automaton_viewer.view(output_name)
+
+    def view_direct_dfa(self, output_name):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed")
+
+        self.tree_viewer.set_tree(self.direct_dfa)
+        self.tree_viewer.view(output_name)
