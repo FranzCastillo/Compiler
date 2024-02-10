@@ -9,26 +9,25 @@ from src.regex.direct import DirectDFA
 
 class Controller:
     def __init__(self, regex=None):
+        self.regex = regex
+        self.nfa_grammar = None
+        self.dfa_grammar = None
+        self.min_dfa_grammar = None
+        self.direct_dfa = None
+        self.direct_dfa_grammar = None
+        self.min_direct_dfa_grammar = None
+
+        # Flag to check if the grammars have been processed.
+        # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
+        self.grammars_processed = False
+
         try:
-            self.regex = regex
-            self.nfa_grammar = None
-            self.dfa_grammar = None
-            self.min_dfa_grammar = None
-            self.direct_dfa = None
-            self.direct_dfa_grammar = None
-            self.min_direct_dfa_grammar = None
-
-            # Flag to check if the grammars have been processed.
-            # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
-            self.grammars_processed = False
-
             # Object to create the PDFs of the automata
             self.automaton_viewer = ViewAutomaton()
             self.tree_viewer = ViewTree()
-
             self.process_grammars()
         except Exception as e:
-            print(e.args)
+            print(e)
 
     def view_automatons(self):
         self.view_nfa("NFA")
@@ -46,34 +45,30 @@ class Controller:
         self.process_grammars()
 
     def process_grammars(self):
-        if not self.regex:
-            raise Exception("Regex not set")
-
-        sy = ShuntingYard()
-        sy.set_regex(self.regex)
-        postfix = sy.get_postfix()
-
-        nfa = NFA(postfix)
-        self.nfa_grammar = nfa.get_grammar()
-
-        dfa = DFA(self.nfa_grammar)
-        self.dfa_grammar = dfa.get_grammar(show_death_state=False)
-
-        min_dfa = MinifiedDFA(self.dfa_grammar)
-        self.min_dfa_grammar = min_dfa.get_grammar()
-
-        self.direct_dfa = DirectDFA(self.regex)
-        self.direct_dfa_grammar = self.direct_dfa.get_grammar()
-
-        self.min_direct_dfa_grammar = MinifiedDFA(self.direct_dfa_grammar).get_grammar()
-
-        self.grammars_processed = True
-
         try:
-            pass
-        except Exception as e:
-            print(e.args)
+            if not self.regex:
+                raise Exception("Regex not set")
+            sy = ShuntingYard()
+            sy.set_regex(self.regex)
+            postfix = sy.get_postfix()
 
+            nfa = NFA(postfix)
+            self.nfa_grammar = nfa.get_grammar()
+
+            dfa = DFA(self.nfa_grammar)
+            self.dfa_grammar = dfa.get_grammar(show_death_state=False)
+
+            min_dfa = MinifiedDFA(self.dfa_grammar)
+            self.min_dfa_grammar = min_dfa.get_grammar()
+
+            self.direct_dfa = DirectDFA(self.regex)
+            self.direct_dfa_grammar = self.direct_dfa.get_grammar()
+
+            self.min_direct_dfa_grammar = MinifiedDFA(self.direct_dfa_grammar).get_grammar()
+
+            self.grammars_processed = True
+        except Exception as e:
+            print(e)
 
     def chain_accepted_nfa(self, string):
         return self.nfa_grammar.is_accepted(string)
