@@ -15,7 +15,10 @@ def get_reachable_states(dfa_grammar):
         current_state = stack.pop()
         reachable_states.add(current_state)
         for transition in current_state.transitions:
-            next_state = list(current_state.transitions[transition])[0]  # Only one state per transition
+            next_state = list(current_state.transitions[transition])  # Only one state per transition
+            if not next_state:
+                continue
+            next_state = next_state[0]
             if next_state not in reachable_states and next_state not in stack:
                 stack.append(next_state)
     return reachable_states

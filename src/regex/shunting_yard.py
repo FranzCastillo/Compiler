@@ -40,6 +40,8 @@ def insert_concat_operator(regex):
             elif (current_char == KLEENE_STAR or current_char == KLEENE_PLUS or current_char == QUESTION_MARK) and (
                     next_char not in operators or next_char == OPEN_PAREN):
                 should_concat = True
+            elif current_char == CLOSE_PAREN and next_char == OPEN_PAREN:
+                should_concat = True
 
             if should_concat:
                 new_regex += CONCAT

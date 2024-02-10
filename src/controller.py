@@ -9,28 +9,33 @@ from src.regex.direct import DirectDFA
 
 class Controller:
     def __init__(self, regex=None):
-        self.regex = regex
-        self.nfa_grammar = None
-        self.dfa_grammar = None
-        self.min_dfa_grammar = None
-        self.direct_dfa = None
-        self.direct_dfa_grammar = None
+        try:
+            self.regex = regex
+            self.nfa_grammar = None
+            self.dfa_grammar = None
+            self.min_dfa_grammar = None
+            self.direct_dfa = None
+            self.direct_dfa_grammar = None
+            self.min_direct_dfa_grammar = None
 
-        # Flag to check if the grammars have been processed.
-        # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
-        self.grammars_processed = False
+            # Flag to check if the grammars have been processed.
+            # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
+            self.grammars_processed = False
 
-        # Object to create the PDFs of the automata
-        self.automaton_viewer = ViewAutomaton()
-        self.tree_viewer = ViewTree()
+            # Object to create the PDFs of the automata
+            self.automaton_viewer = ViewAutomaton()
+            self.tree_viewer = ViewTree()
 
-        self.process_grammars()
+            self.process_grammars()
+        except Exception as e:
+            print(e.args)
 
     def view_automatons(self):
         self.view_nfa("NFA")
         self.view_dfa("DFA")
         self.view_min_dfa("MIN_DFA")
         self.view_direct_dfa("DIRECT_DFA")
+        self.view_min_direct_dfa("MIN_DIRECT_DFA")
 
     def view_syntax_tree(self):
         self.tree_viewer.set_tree(self.direct_dfa.syntax_tree)
@@ -60,7 +65,15 @@ class Controller:
         self.direct_dfa = DirectDFA(self.regex)
         self.direct_dfa_grammar = self.direct_dfa.get_grammar()
 
+        self.min_direct_dfa_grammar = MinifiedDFA(self.direct_dfa_grammar).get_grammar()
+
         self.grammars_processed = True
+
+        try:
+            pass
+        except Exception as e:
+            print(e.args)
+
 
     def chain_accepted_nfa(self, string):
         return self.nfa_grammar.is_accepted(string)
@@ -71,6 +84,12 @@ class Controller:
     def chain_accepted_min_dfa(self, string):
         return self.min_dfa_grammar.is_accepted(string)
 
+    def chain_accepted_direct_dfa(self, string):
+        return self.direct_dfa_grammar.is_accepted(string)
+
+    def chain_accepted_min_direct_dfa(self, string):
+        return self.min_direct_dfa_grammar.is_accepted(string)
+
     def simulate_nfa(self, string):
         return self.nfa_grammar.simulate(string)
 
@@ -79,6 +98,12 @@ class Controller:
 
     def simulate_min_dfa(self, string):
         return self.min_dfa_grammar.simulate(string)
+
+    def simulate_direct_dfa(self, string):
+        return self.direct_dfa_grammar.simulate(string)
+
+    def simulate_min_direct_dfa(self, string):
+        return self.min_direct_dfa_grammar.simulate(string)
 
     def view_nfa(self, output_name):
         if not self.grammars_processed:
@@ -106,4 +131,11 @@ class Controller:
             raise Exception("Grammars not processed")
 
         self.automaton_viewer.set_grammar(self.direct_dfa_grammar)
+        self.automaton_viewer.view(output_name)
+
+    def view_min_direct_dfa(self, output_name):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed")
+
+        self.automaton_viewer.set_grammar(self.min_direct_dfa_grammar)
         self.automaton_viewer.view(output_name)
