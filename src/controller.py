@@ -13,7 +13,7 @@ def check_operators_together(regex):
         if i < len(regex):
             current = regex[i]
             next = regex[i + 1] if i + 1 < len(regex) else None
-            if current in operators and next in operators:
+            if current in operators and next in unary_operators:
                 return True
     return False
 
