@@ -24,59 +24,142 @@ def build_syntax_tree(regex):
     """
     stack = []
     tag = 1
-    next_pos_table = []  # tag, symbol, next_pos
     for char in regex:
         if char not in operators:
             if char == EPSILON:
                 stack.append(Node(char, tag=EPSILON))
             else:
                 stack.append(Node(char, tag=tag))
-                next_pos_table.append({"tag": tag, "symbol": char, "next_pos": set()})
                 tag += 1
         else:
-            if char in unary_operators:
+            if char == KLEENE_STAR:
                 left = stack.pop()
-                if char == KLEENE_STAR:
-                    node = Node(char, left)
-                    node.nullable = True
-                    node.first_pos = left.first_pos
-                    node.last_pos = left.last_pos
-                    stack.append(node)
-
-                    # Fill the next_pos_table
-                    for pos in left.last_pos:
-                        next_pos_table[pos - 1]["next_pos"].update(left.first_pos)
-                else:
-                    stack.append(Node(char, left, tag=tag))
-                    tag += 1
+                node = Node(char, left)
+                stack.append(node)
             else:  # Binary operator
                 right = stack.pop()
                 left = stack.pop()
-
                 node = Node(char, left, right)
-                if char == UNION:
-                    node.nullable = left.nullable or right.nullable
-                    node.first_pos = left.first_pos.union(right.first_pos)
-                    node.last_pos = left.last_pos.union(right.last_pos)
-                elif char == CONCAT:
-                    node.nullable = left.nullable and right.nullable
-                    if left.nullable:
-                        node.first_pos = left.first_pos.union(right.first_pos)
-                    else:
-                        node.first_pos = left.first_pos
-
-                    if right.nullable:
-                        node.last_pos = left.last_pos.union(right.last_pos)
-                    else:
-                        node.last_pos = right.last_pos
-
-                    # Fill the next_pos_table
-                    for pos in left.last_pos:
-                        next_pos_table[pos - 1]["next_pos"].update(right.first_pos)
-
                 stack.append(node)
 
-    return stack.pop(), next_pos_table
+    return stack.pop()
+
+
+def apply_nullable(node: Node):
+    """
+    Apply the nullable property to the nodes of the tree.
+    :param node:
+    :return:
+    """
+    # Recursively get to the leaves
+    if node.left:
+        apply_nullable(node.left)
+    if node.right:
+        apply_nullable(node.right)
+
+    if node.value == EPSILON:
+        node.nullable = True
+    elif node.value == UNION:
+        node.nullable = node.left.nullable or node.right.nullable
+    elif node.value == CONCAT:
+        node.nullable = node.left.nullable and node.right.nullable
+    elif node.value == KLEENE_STAR:
+        node.nullable = True
+    else:
+        node.nullable = False
+
+
+def apply_first_pos(node: Node):
+    """
+    Apply the first_pos property to the nodes of the tree.
+    :param node:
+    :return:
+    """
+    # Recursively get to the leaves
+    if node.left:
+        apply_first_pos(node.left)
+    if node.right:
+        apply_first_pos(node.right)
+
+    if node.value == EPSILON:
+        node.first_pos = set()
+    elif node.value == UNION:
+        node.first_pos = node.left.first_pos.union(node.right.first_pos)
+    elif node.value == CONCAT:
+        if node.left.nullable:
+            node.first_pos = node.left.first_pos.union(node.right.first_pos)
+        else:
+            node.first_pos = node.left.first_pos
+    elif node.value == KLEENE_STAR:
+        node.first_pos = node.left.first_pos
+    else:
+        node.first_pos = {node.tag}
+
+
+def apply_last_pos(node: Node):
+    """
+    Apply the last_pos property to the nodes of the tree.
+    :param node:
+    :return:
+    """
+    # Recursively get to the leaves
+    if node.left:
+        apply_last_pos(node.left)
+    if node.right:
+        apply_last_pos(node.right)
+
+    if node.value == EPSILON:
+        node.last_pos = set()
+    elif node.value == UNION:
+        node.last_pos = node.left.last_pos.union(node.right.last_pos)
+    elif node.value == CONCAT:
+        if node.right.nullable:
+            node.last_pos = node.left.last_pos.union(node.right.last_pos)
+        else:
+            node.last_pos = node.right.last_pos
+    elif node.value == KLEENE_STAR:
+        node.last_pos = node.left.last_pos
+    else:
+        node.last_pos = {node.tag}
+
+
+def get_next_pos_table(node: Node):
+    """
+    Get the next_pos table of the regular expression.
+    :param node:
+    :return:
+    """
+    next_pos_table = []  # tag, symbol, next_pos
+    get_next_pos(node, next_pos_table)
+    return next_pos_table
+
+
+def get_next_pos(node: Node, next_pos_table: list):
+    """
+    Apply the next_pos property to the nodes of the tree.
+    :param node:
+    :param next_pos_table:
+    :return:
+    """
+    # Recursively get to the leaves
+    if node.left:
+        get_next_pos(node.left, next_pos_table)
+    if node.right:
+        get_next_pos(node.right, next_pos_table)
+
+    if node.value == CONCAT:
+        for pos in node.left.last_pos:
+            next_pos_table[pos - 1]["next_pos"].update(node.right.first_pos)
+    elif node.value == KLEENE_STAR:
+        for pos in node.left.last_pos:
+            next_pos_table[pos - 1]["next_pos"].update(node.left.first_pos)
+    else:
+        if node.tag and node.value != EPSILON:
+            next_pos_table.append({
+                "tag": node.tag,
+                "symbol": node.value,
+                "next_pos": set()
+            })
 
 
 def get_alphabet(regex):
@@ -106,7 +189,11 @@ class DirectDFA:
         self.alphabet = get_alphabet(regex)
         self.postfix_regex = get_postfix(regex)
         self.augmented_regex = self.postfix_regex + Operator.AUGMENTED.symbol + CONCAT
-        self.syntax_tree, self.next_pos_table = build_syntax_tree(self.augmented_regex)
+        self.syntax_tree = build_syntax_tree(self.augmented_regex)
+        apply_nullable(self.syntax_tree)
+        apply_first_pos(self.syntax_tree)
+        apply_last_pos(self.syntax_tree)
+        self.next_pos_table = get_next_pos_table(self.syntax_tree)
         self.transition_table = self._build_transition_table()
 
     def get_grammar(self):
@@ -127,17 +214,17 @@ class DirectDFA:
         state_positions_map = {}  # state: positions
 
         # Add the initial row
-        initial_next_pos = self.next_pos_table[0]
+        initial_next_pos = self.syntax_tree.first_pos
 
         initial_row = {
-            "positions": initial_next_pos["next_pos"],
+            "positions": initial_next_pos,
             "state": State(),
         }
         state_positions_map[initial_row["state"]] = initial_row["positions"]
 
         initial_transitions = {}
         for char in self.alphabet:
-            transition = self._get_transition(initial_next_pos["next_pos"], char)
+            transition = self._get_transition(initial_row["positions"], char)
             if transition:
                 if transition not in state_positions_map.values():
                     initial_transitions[char] = State()
@@ -205,8 +292,11 @@ class DirectDFA:
         states = {row["state"] for row in self.transition_table}
         alphabet = self.alphabet
         start = self.transition_table[0]["state"]
+
+        accepting_tag = self.next_pos_table[-1]["tag"]
+
         accepting_states = {row["state"] for row in self.transition_table if
-                            row["positions"].intersection(self.transition_table[-1]["positions"])}
+                            accepting_tag in row["positions"]}
         transitions = {}
         for row in self.transition_table:
             # Add the rows with no transitions

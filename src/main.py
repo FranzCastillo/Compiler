@@ -6,7 +6,9 @@ def __main__():
     # regex = 'a(a|b)*b'
     # regex = 'a+d|b'
     # regex = 'a[a-e]*b'
-    regex = '(a|b)+abc?'
+    # regex = '(a|b)+abc?'
+    # regex = 'a+b*'
+    regex = '(a|b)*abb'
 
     chain = "abab"
 
