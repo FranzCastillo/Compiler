@@ -5,6 +5,17 @@ from src.regex.min_dfa import MinifiedDFA
 from src.view.automaton import ViewAutomaton
 from src.view.tree import ViewTree
 from src.regex.direct import DirectDFA
+from src.regex.operators_values import *
+
+
+def check_operators_together(regex):
+    for i in range(len(regex)):
+        if i < len(regex):
+            current = regex[i]
+            next = regex[i + 1] if i + 1 < len(regex) else None
+            if current in operators and next in operators:
+                return True
+    return False
 
 
 class Controller:
@@ -30,13 +41,18 @@ class Controller:
             print(e)
 
     def view_automatons(self):
-        self.view_nfa("NFA")
-        self.view_dfa("DFA")
-        self.view_min_dfa("MIN_DFA")
-        self.view_direct_dfa("DIRECT_DFA")
-        self.view_min_direct_dfa("MIN_DIRECT_DFA")
+        try:
+            self.view_nfa("NFA")
+            self.view_dfa("DFA")
+            self.view_min_dfa("MIN_DFA")
+            self.view_direct_dfa("DIRECT_DFA")
+            self.view_min_direct_dfa("MIN_DIRECT_DFA")
+        except Exception as e:
+            print(e)
 
     def view_syntax_tree(self):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't view syntax tree.")
         self.tree_viewer.set_tree(self.direct_dfa.syntax_tree)
         self.tree_viewer.view("SYNTAX_TREE")
 
@@ -48,6 +64,8 @@ class Controller:
         try:
             if not self.regex:
                 raise Exception("Regex not set")
+            if check_operators_together(self.regex):
+                raise Exception("Invalid Regex. Operators together")
             sy = ShuntingYard()
             sy.set_regex(self.regex)
             postfix = sy.get_postfix()
@@ -71,66 +89,86 @@ class Controller:
             print(e)
 
     def chain_accepted_nfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't check if chain is accepted (NFA)")
         return self.nfa_grammar.is_accepted(string)
 
     def chain_accepted_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't check if chain is accepted (DFA)")
         return self.dfa_grammar.is_accepted(string)
 
     def chain_accepted_min_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't check if chain is accepted (Min DFA)")
         return self.min_dfa_grammar.is_accepted(string)
 
     def chain_accepted_direct_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't check if chain is accepted (Direct DFA)")
         return self.direct_dfa_grammar.is_accepted(string)
 
     def chain_accepted_min_direct_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't check if chain is accepted (Min Direct DFA)")
         return self.min_direct_dfa_grammar.is_accepted(string)
 
     def simulate_nfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't simulate (NFA)")
         return self.nfa_grammar.simulate(string)
 
     def simulate_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't simulate (DFA)")
         return self.dfa_grammar.simulate(string)
 
     def simulate_min_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't simulate (Min DFA)")
         return self.min_dfa_grammar.simulate(string)
 
     def simulate_direct_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't simulate (Direct DFA)")
         return self.direct_dfa_grammar.simulate(string)
 
     def simulate_min_direct_dfa(self, string):
+        if not self.grammars_processed:
+            raise Exception("Grammars not processed. Can't simulate (Min Direct DFA)")
         return self.min_direct_dfa_grammar.simulate(string)
 
     def view_nfa(self, output_name):
         if not self.grammars_processed:
-            raise Exception("Grammars not processed")
+            raise Exception("Grammars not processed. Can't view NFA.")
 
         self.automaton_viewer.set_grammar(self.nfa_grammar)
         self.automaton_viewer.view(output_name)
 
     def view_dfa(self, output_name):
         if not self.grammars_processed:
-            raise Exception("Grammars not processed")
+            raise Exception("Grammars not processed. Can't view DFA.")
 
         self.automaton_viewer.set_grammar(self.dfa_grammar)
         self.automaton_viewer.view(output_name)
 
     def view_min_dfa(self, output_name):
         if not self.grammars_processed:
-            raise Exception("Grammars not processed")
+            raise Exception("Grammars not processed. Can't view Min DFA.")
 
         self.automaton_viewer.set_grammar(self.min_dfa_grammar)
         self.automaton_viewer.view(output_name)
 
     def view_direct_dfa(self, output_name):
         if not self.grammars_processed:
-            raise Exception("Grammars not processed")
+            raise Exception("Grammars not processed. Can't view Direct DFA.")
 
         self.automaton_viewer.set_grammar(self.direct_dfa_grammar)
         self.automaton_viewer.view(output_name)
 
     def view_min_direct_dfa(self, output_name):
         if not self.grammars_processed:
-            raise Exception("Grammars not processed")
+            raise Exception("Grammars not processed. Can't view Min Direct DFA.")
 
         self.automaton_viewer.set_grammar(self.min_direct_dfa_grammar)
         self.automaton_viewer.view(output_name)
