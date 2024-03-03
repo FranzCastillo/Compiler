@@ -1,6 +1,6 @@
-from src.regex.state import State
-from src.regex.operators import Operator
 from src.regex.grammar import Grammar
+from src.regex.operators import Operator
+from src.regex.state import State
 
 
 class Fragment:

@@ -1,8 +1,8 @@
+from src.regex.grammar import Grammar
 from src.regex.operators_values import *
 from src.regex.shunting_yard import ShuntingYard
-from src.structures.node import Node
 from src.regex.state import State
-from src.regex.grammar import Grammar
+from src.structures.node import Node
 
 
 def get_postfix(regex):
@@ -181,13 +181,28 @@ def get_alphabet(regex):
     return alphabet
 
 
+def postfix_to_infix(postfix):
+    stack = []
+    for char in postfix:
+        if char in unary_operators:
+            right = stack.pop()
+            stack.append(f"({right}{char})")
+        elif char in operators:
+            right = stack.pop()
+            left = stack.pop()
+            stack.append(f"({left}{char}{right})")
+        else:
+            stack.append(char)
+    return stack.pop()
+
+
 class DirectDFA:
     def __init__(self, regex):
         if not regex:
             raise Exception("Regex not set")
-        self.regex = regex
-        self.alphabet = get_alphabet(regex)
-        self.postfix_regex = get_postfix(regex)
+        self.regex = postfix_to_infix(regex)
+        self.alphabet = get_alphabet(self.regex)
+        self.postfix_regex = get_postfix(self.regex)
         self.augmented_regex = self.postfix_regex + Operator.AUGMENTED.symbol + CONCAT
         self.syntax_tree = build_syntax_tree(self.augmented_regex)
         apply_nullable(self.syntax_tree)

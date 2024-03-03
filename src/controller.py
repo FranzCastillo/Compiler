@@ -1,11 +1,34 @@
-from src.regex.shunting_yard import ShuntingYard
-from src.regex.nfa import NFA
 from src.regex.dfa import DFA
+from src.regex.direct import DirectDFA
 from src.regex.min_dfa import MinifiedDFA
+from src.regex.nfa import NFA
+from src.regex.operators_values import *
+from src.regex.shunting_yard import ShuntingYard
 from src.view.automaton import ViewAutomaton
 from src.view.tree import ViewTree
-from src.regex.direct import DirectDFA
-from src.regex.operators_values import *
+
+
+def replace_postfix(postfix):
+    """
+    Replaces x? with xε| and x+ with xx*.
+    """
+    stack = []
+    for char in postfix:
+        if char in unary_operators:
+            right = stack.pop()
+            if char == QUESTION_MARK:
+                stack.append(f"{right}{EPSILON}{UNION}")
+            elif char == KLEENE_PLUS:
+                stack.append(f"{right}{right}{KLEENE_STAR}{CONCAT}")
+            else:
+                stack.append(f"{right}{char}")
+        elif char in operators:
+            right = stack.pop()
+            left = stack.pop()
+            stack.append(f"{left}{right}{char}")
+        else:
+            stack.append(char)
+    return stack.pop()
 
 
 def check_operators_together(regex):
@@ -21,6 +44,7 @@ def check_operators_together(regex):
 class Controller:
     def __init__(self, regex=None):
         self.regex = regex
+        self.postfix = None
         self.nfa_grammar = None
         self.dfa_grammar = None
         self.min_dfa_grammar = None
@@ -64,13 +88,14 @@ class Controller:
         try:
             if not self.regex:
                 raise Exception("Regex not set")
-            if check_operators_together(self.regex):
-                raise Exception("Invalid Regex. Operators together")
+            # if check_operators_together(self.regex):
+            #     raise Exception("Invalid Regex. Operators together")
             sy = ShuntingYard()
             sy.set_regex(self.regex)
             postfix = sy.get_postfix()
+            self.postfix = replace_postfix(postfix)
 
-            nfa = NFA(postfix)
+            nfa = NFA(self.postfix)
             self.nfa_grammar = nfa.get_grammar()
 
             dfa = DFA(self.nfa_grammar)
@@ -79,7 +104,7 @@ class Controller:
             min_dfa = MinifiedDFA(self.dfa_grammar)
             self.min_dfa_grammar = min_dfa.get_grammar()
 
-            self.direct_dfa = DirectDFA(self.regex)
+            self.direct_dfa = DirectDFA(self.postfix)
             self.direct_dfa_grammar = self.direct_dfa.get_grammar()
 
             self.min_direct_dfa_grammar = MinifiedDFA(self.direct_dfa_grammar).get_grammar()

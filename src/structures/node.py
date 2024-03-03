@@ -1,6 +1,3 @@
-from src.regex.operators_values import EPSILON
-
-
 class Node:
     def __init__(self, value, left=None, right=None, tag=None):
         self.value = value

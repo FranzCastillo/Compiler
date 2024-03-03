@@ -31,6 +31,7 @@ def get_state_of_partition(partitions_dict, target_state):
                 return key
     return None
 
+
 def minimize_dfa(dfa_grammar):
     """
     Function to minimize a DFA. Using Hopcroft's algorithm.
