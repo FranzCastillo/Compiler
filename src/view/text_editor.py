@@ -61,8 +61,8 @@ class TextEditor:
             else:
                 # If no file is currently open, open the save file dialog
                 file_path = filedialog.asksaveasfilename(
-                    defaultextension=".yal",
-                    filetypes=[("YAL files", "*.yal"), ("All files", "*.*")]
+                    defaultextension=".lex",
+                    filetypes=[("LEX files", "*.lex"), ("All files", "*.*")]
                 )
                 with open(file_path, 'w') as file:
                     content = self.text.get(1.0, tk.END)

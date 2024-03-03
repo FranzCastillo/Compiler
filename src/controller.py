@@ -65,7 +65,17 @@ class Controller:
             print(e)
 
     def run_file(self, print_console: callable, content: str):
-        print_console("HOLA DESDE EL CONTROLADOR")
+        content = content.strip()
+        if not content:
+            raise Exception("Empty file")
+
+        lines = content.split("\n")
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            print_console(line)
+            # self.run_command(line)
 
     def view_automatons(self):
         try:
