@@ -64,6 +64,9 @@ class Controller:
         except Exception as e:
             print(e)
 
+    def run_file(self, print_console: callable, content: str):
+        print_console("HOLA DESDE EL CONTROLADOR")
+
     def view_automatons(self):
         try:
             self.view_nfa("NFA")
