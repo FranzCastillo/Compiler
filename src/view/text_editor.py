@@ -44,6 +44,10 @@ class TextEditor:
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.current_file = None  # To keep track of the current file
 
+        # Synchronize scrolling
+        self.text.config(yscrollcommand=self.scroll_line_numbers)
+        self.line_number_bar.config(yscrollcommand=self.scroll_text)
+
     def new_file(self):
         self.text.delete(1.0, tk.END)
 
@@ -120,9 +124,24 @@ class TextEditor:
 
     def update_line_numbers_on_change(self, event=None):
         self.update_line_numbers()
+        self.scroll_line_numbers('moveto', '1.0')
 
     def bind_update_line_numbers(self):
         self.text.bind('<Key>', self.update_line_numbers_on_change)
         self.text.bind('<Button-1>', self.update_line_numbers_on_change)
         self.text.bind('<<Change>>', self.update_line_numbers_on_change)
         self.text.bind('<<Modified>>', self.update_line_numbers_on_change)
+
+    def scroll_line_numbers(self, *args):
+        try:
+            self.line_number_bar.yview(*args)
+        except tk.TclError:
+            # Handle the case when the scroll command argument is a float
+            pass
+        
+    def scroll_text(self, *args):
+        try:
+            self.text.yview(*args)
+        except tk.TclError:
+            # Handle the case when the scroll command argument is a float
+            pass
