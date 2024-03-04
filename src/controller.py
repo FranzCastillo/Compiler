@@ -83,10 +83,10 @@ class Controller:
             raise Exception("Empty file")
         content = remove_comments(content)
         print_console(content)
-        # d, r, c = content.split("%%")
-        # self.declarations = d.strip()
-        # self.rules = r.strip()
-        # self.code = c.strip()
+        d, r, c = content.split("%%")
+        self.declarations = d.strip()
+        self.rules = r.strip()
+        self.code = c.strip()
         #
         # rules = self.rules.split("\n")
         # for rule in rules:
