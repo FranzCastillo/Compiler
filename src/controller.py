@@ -31,14 +31,23 @@ def replace_postfix(postfix):
     return stack.pop()
 
 
-def check_operators_together(regex):
-    for i in range(len(regex)):
-        if i < len(regex):
-            current = regex[i]
-            next = regex[i + 1] if i + 1 < len(regex) else None
-            if current in operators and next in unary_operators:
-                return True
-    return False
+def remove_comments(content):
+    result = ""
+    in_comment = False
+    i = 0
+    while i < len(content):
+        if content[i:i + 2] == '(*':
+            in_comment = True
+            i += 2
+        elif content[i:i + 2] == '*)':
+            in_comment = False
+            i += 2
+        elif not in_comment:
+            result += content[i]
+            i += 1
+        else:
+            i += 1
+    return result
 
 
 class Controller:
@@ -56,11 +65,15 @@ class Controller:
         # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
         self.grammars_processed = False
 
+        self.declarations = None
+        self.rules = None
+        self.code = None
+
         try:
             # Object to create the PDFs of the automata
             self.automaton_viewer = ViewAutomaton()
             self.tree_viewer = ViewTree()
-            self.process_grammars()
+            # self.process_grammars()
         except Exception as e:
             print(e)
 
@@ -68,14 +81,19 @@ class Controller:
         content = content.strip()
         if not content:
             raise Exception("Empty file")
-
-        lines = content.split("\n")
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            print_console(line)
-            # self.run_command(line)
+        content = remove_comments(content)
+        print_console(content)
+        # d, r, c = content.split("%%")
+        # self.declarations = d.strip()
+        # self.rules = r.strip()
+        # self.code = c.strip()
+        #
+        # rules = self.rules.split("\n")
+        # for rule in rules:
+        #     rule.strip()
+        #     if not rule:
+        #         continue
+        #     self.create_rule(rule)
 
     def view_automatons(self):
         try:
