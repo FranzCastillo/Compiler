@@ -9,13 +9,18 @@ class TextEditor:
         self.controller = controller
 
         self.root = tk.Tk()
+
+        # Create a text widget for line numbers
+        self.line_number_bar = tk.Text(self.root, width=4, state='disabled', bg='lightgrey', padx=5)
+        self.line_number_bar.grid(row=0, column=0, sticky='nsew')
+
         # Create a text widget
         self.text = tk.Text(self.root)
-        self.text.grid(row=0, sticky='nsew')
+        self.text.grid(row=0, column=1, sticky='nsew')
 
         # Create a disabled text widget to display program output
-        self.console = tk.Text(self.root, state='disabled', height=10)
-        self.console.grid(row=1, sticky='nsew')
+        self.console = tk.Text(self.root, state='disabled', height=10, bg='darkgrey')
+        self.console.grid(row=1, column=0, columnspan=2, sticky='nsew')
 
         # Add a file menu to the menu
         self.menu = tk.Menu(self.root)
@@ -30,6 +35,8 @@ class TextEditor:
         self.file_menu.add_command(label="Exit", command=self.root.quit)
         # Run Option
         self.menu.add_command(label="Run", command=self.run_file)
+
+        self.bind_update_line_numbers()
 
         self.root.bind_all('<Control-s>', self.save_file)  # Ctrl + S to save a file
         self.root.bind_all('<Control-o>', self.open_file)  # Ctrl + O to open a file
@@ -98,3 +105,24 @@ class TextEditor:
 
         # Destroy the tkinter root window
         self.root.destroy()
+
+    def update_line_numbers(self, event=None):
+        # Delete the current content of the line number bar
+        self.line_number_bar.config(state='normal')
+        self.line_number_bar.delete('1.0', tk.END)
+
+        # Insert the new line numbers
+        num_of_lines = self.text.index('end-1c').split('.')[0]
+        line_numbers_string = "\n".join(str(no) for no in range(1, int(num_of_lines) + 1))
+        self.line_number_bar.insert('1.0', line_numbers_string)
+
+        self.line_number_bar.config(state='disabled')
+
+    def update_line_numbers_on_change(self, event=None):
+        self.update_line_numbers()
+
+    def bind_update_line_numbers(self):
+        self.text.bind('<Key>', self.update_line_numbers_on_change)
+        self.text.bind('<Button-1>', self.update_line_numbers_on_change)
+        self.text.bind('<<Change>>', self.update_line_numbers_on_change)
+        self.text.bind('<<Modified>>', self.update_line_numbers_on_change)
