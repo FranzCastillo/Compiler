@@ -17,6 +17,8 @@ class TextEditor:
         # Create a text widget
         self.text = tk.Text(self.root)
         self.text.grid(row=0, column=1, sticky='nsew')
+        default_text = '(*header*)\n%%\n(*rules*)\n%%\n(*trailer*)'
+        self.text.insert(tk.INSERT, default_text)
 
         # Create a disabled text widget to display program output
         self.console = tk.Text(self.root, state='disabled', height=10, bg='darkgrey')
@@ -138,7 +140,7 @@ class TextEditor:
         except tk.TclError:
             # Handle the case when the scroll command argument is a float
             pass
-        
+
     def scroll_text(self, *args):
         try:
             self.text.yview(*args)
