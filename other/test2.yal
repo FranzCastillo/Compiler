@@ -1,0 +1,22 @@
+(* ejemplo.yal *)
+import myToken
+%%
+let add_or_subtract = '+' | '-'
+let mult_or_div = '*' | '/'
+let operators = add_or_subtract | mult_or_div
+let letters = ['a'-'z']
+let numbers = ['0'-'9']
+let hello = "Hello World!"
+
+rule gettoken =
+[' ' '\t'] { return lexbuf } (* skip blanks *)
+| ['\n' ] { return EOL }
+| ['0'-'9']+ { return int(lxm) }
+| '+' { return PLUS }
+| '-' { return MINUS }
+| '*' { return TIMES }
+| '/' { return DIV }
+| '(' { return LPAREN }
+| ')' { return RPAREN }
+| eof { raise( 'Fin de buffer' )}
+%%
