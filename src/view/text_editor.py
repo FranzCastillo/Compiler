@@ -97,6 +97,7 @@ class TextEditor:
     def print_console(self, message):
         self.console.config(state='normal')
         self.console.insert(tk.END, message + "\n")
+        self.console.see(tk.END)
         self.console.config(state='disabled')
 
     def run(self):
