@@ -71,17 +71,19 @@ class TextEditor:
                 with open(self.current_file, 'w') as file:
                     content = self.text.get(1.0, tk.END)
                     file.write(content)
+                self.print_console(f"File saved as {self.current_file}")
             else:
                 # If no file is currently open, open the save file dialog
                 file_path = filedialog.asksaveasfilename(
-                    defaultextension=".lex",
-                    filetypes=[("LEX files", "*.lex"), ("All files", "*.*")]
+                    defaultextension=".yal",
+                    filetypes=[("YAL files", "*.yal"), ("All files", "*.*")]
                 )
                 with open(file_path, 'w') as file:
                     content = self.text.get(1.0, tk.END)
                     file.write(content)
 
                 self.current_file = file_path
+                self.print_console(f"File saved as {file_path}")
         except FileNotFoundError:
             pass
 
