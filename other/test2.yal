@@ -10,7 +10,7 @@ let hello = "Hello World!"
 
 rule gettoken =
 [' ' '\t'] { return lexbuf } (* skip blanks *)
-| ['\n' ] { return EOL }
+| ['\n'] { return EOL } 
 | ['0'-'9']+ { return int(lxm) }
 | '+' { return PLUS }
 | '-' { return MINUS }
@@ -19,4 +19,15 @@ rule gettoken =
 | '(' { return LPAREN }
 | ')' { return RPAREN }
 | eof { raise( 'Fin de buffer' )}
+
+rule getidentifier =
+['a'-'z']+ { return ID }
 %%
+
+
+
+
+
+
+
+
