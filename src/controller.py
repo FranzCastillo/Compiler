@@ -6,6 +6,7 @@ from src.regex.operators_values import *
 from src.regex.shunting_yard import ShuntingYard
 from src.view.automaton import ViewAutomaton
 from src.view.tree import ViewTree
+from src.yalex.file_parser import FileParser
 
 
 def replace_postfix(postfix):
@@ -31,25 +32,6 @@ def replace_postfix(postfix):
     return stack.pop()
 
 
-def remove_comments(content):
-    result = ""
-    in_comment = False
-    i = 0
-    while i < len(content):
-        if content[i:i + 2] == '(*':
-            in_comment = True
-            i += 2
-        elif content[i:i + 2] == '*)':
-            in_comment = False
-            i += 2
-        elif not in_comment:
-            result += content[i]
-            i += 1
-        else:
-            i += 1
-    return result
-
-
 class Controller:
     def __init__(self, regex=None):
         self.regex = regex
@@ -65,10 +47,6 @@ class Controller:
         # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
         self.grammars_processed = False
 
-        self.declarations = None
-        self.rules = None
-        self.code = None
-
         try:
             # Object to create the PDFs of the automata
             self.automaton_viewer = ViewAutomaton()
@@ -78,25 +56,10 @@ class Controller:
             print(e)
 
     def run_file(self, print_console: callable, content: str):
-        content = content.strip()
-        if not content:
-            raise Exception("Empty file")
-        content = remove_comments(content)
-        print_console(content)
         try:
-            d, r, c = content.split("%%")
-        except ValueError:
-            raise Exception("Invalid file format. Missing %%")
-        self.declarations = d.strip()
-        self.rules = r.strip()
-        self.code = c.strip()
-
-        # rules = self.rules.split("\n")
-        # for rule in rules:
-        #     rule.strip()
-        #     if not rule:
-        #         continue
-        #     self.create_rule(rule)
+            file_parser = FileParser(content)
+        except Exception as e:
+            print_console(f"Error: {e}")
 
     def view_automatons(self):
         try:
@@ -122,8 +85,6 @@ class Controller:
         try:
             if not self.regex:
                 raise Exception("Regex not set")
-            # if check_operators_together(self.regex):
-            #     raise Exception("Invalid Regex. Operators together")
             sy = ShuntingYard()
             sy.set_regex(self.regex)
             postfix = sy.get_postfix()
