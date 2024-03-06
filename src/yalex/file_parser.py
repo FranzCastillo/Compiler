@@ -39,6 +39,8 @@ class FileParser:
         self.identifiers = {}
         self.rules = {}  # {rule: {regex: return}}
         self.process_rules(self.rules_content)
+        self.replace_identifiers()
+        self.replace_rules()
         self.parse_rules()
 
     def process_rules(self, rules_content: str):
@@ -72,6 +74,29 @@ class FileParser:
                         # To update the index of the main loop to the last line read
                         i = j
                         break
+
+    def replace_identifiers(self):
+        sorted_keys = sorted(self.identifiers.keys(), key=len, reverse=True)
+
+        for key in sorted_keys:
+            for identifier in self.identifiers:
+                if key in self.identifiers[identifier]:
+                    self.identifiers[identifier] = self.identifiers[identifier].replace(key,
+                                                                                        f"({self.identifiers[key]})")
+
+    def replace_rules(self):
+        sorted_keys = sorted(self.identifiers.keys(), key=len, reverse=True)
+
+        new_rules = {}
+        for rule in self.rules:
+            new_rules[rule] = {}
+            for regex in self.rules[rule].keys():
+                new_regex = regex
+                for key in sorted_keys:
+                    if key in new_regex:
+                        new_regex = new_regex.replace(key, f"({self.identifiers[key]})")
+                new_rules[rule][new_regex] = self.rules[rule][regex]
+        self.rules = new_rules
 
     def parse_rules(self):
         parser = RegexParser(self.identifiers)
