@@ -2,34 +2,29 @@ class RegexParser:
     def __init__(self, identifiers: dict):
         self.identifiers = identifiers
 
+    # TODO:Implement a way to handle 'chars' and escape characters
     def parse(self, regex: str):
         stack = []
-        for i in range(len(regex)):
+        i = 0
+        while i < len(regex):
             char = regex[i]
-            if char == "'":  # Constant or scape character
-                pass
-            elif char == "_":  # Any character
-                pass
-            elif char == '"':  # Chain of characters may contain scape characters
-                pass
-            elif char == "[":  # Set of characters
+            if char == "[":  # Set of characters
                 next_char = regex[i + 1]
                 if next_char == "'":  # Simple symbol
-                    pass
+                    i += 1
                 elif next_char == '"':  # Chain of characters
-                    pass
+                    string_content = '('
+                    i += 2  # Skip ["
+                    while regex[i] != '"':
+                        string_content += regex[i] + '|'
+                        i += 1
+                    i += 1  # Skip "
+                    stack.append(string_content[:-1] + ')')
                 elif next_char == '^':  # Any character except the ones in the set
-                    pass
-            elif char == '#':  # Difference set of two regex
-                pass
-            elif char == '*':  # Kleene Closure
-                pass
-            elif char == '+':  # Positive Closure
-                pass
-            elif char == '?':  # Optional
-                pass
-            elif char == '|':  # Union
-                pass
+                    i += 1
+            else:
+                stack.append(char)
+            i += 1
 
-
-        return new_regex
+        return_value = ''.join(stack)
+        return return_value
