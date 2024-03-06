@@ -12,6 +12,17 @@ class RegexParser:
                 next_char = regex[i + 1]
                 if next_char == "'":  # Simple symbol
                     i += 1
+                    string_content = ''
+                    is_range = regex[i + 3] == '-'
+                    if is_range:  # ['a'-'z''A'-'Z''0'-'9']
+                        while regex[i] != ']':
+                            string_content += regex[i] if regex[i] != "'" else ''
+                            i += 1
+                        stack.append(f"[{string_content}]")
+
+                    else:  # Union of chars
+                        pass
+
                 elif next_char == '"':  # Chain of characters
                     string_content = '('
                     i += 2  # Skip ["
