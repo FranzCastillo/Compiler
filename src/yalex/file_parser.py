@@ -44,6 +44,9 @@ class FileParser:
         self.parse_rules()
 
     def process_rules(self, rules_content: str):
+        """
+        Process the identifiers/rules from the file content and store them in dictionaries.
+        """
         lines = rules_content.split("\n")
 
         for i in range(len(lines)):
@@ -76,6 +79,9 @@ class FileParser:
                         break
 
     def replace_identifiers(self):
+        """
+        Replace the identifiers with the value of other identifiers if needed.
+        """
         sorted_keys = sorted(self.identifiers.keys(), key=len, reverse=True)
 
         for key in sorted_keys:
@@ -85,6 +91,9 @@ class FileParser:
                                                                                         f"({self.identifiers[key]})")
 
     def replace_rules(self):
+        """
+        Replace the rules with the value of other identifiers if needed.
+        """
         sorted_keys = sorted(self.identifiers.keys(), key=len, reverse=True)
 
         new_rules = {}
@@ -99,6 +108,9 @@ class FileParser:
         self.rules = new_rules
 
     def parse_rules(self):
+        """
+        Parse the rules from a yalex syntax to the internal regex syntax.
+        """
         parser = RegexParser(self.identifiers)
         new_rules = {}
         for rule in self.rules:
