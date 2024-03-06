@@ -58,6 +58,8 @@ class Controller:
     def run_file(self, print_console: callable, content: str):
         try:
             file_parser = FileParser(content)
+            full_regex = file_parser.get_full_regex()
+            # self.set_regex(full_regex)
         except Exception as e:
             print_console(f"Error: {e}")
 

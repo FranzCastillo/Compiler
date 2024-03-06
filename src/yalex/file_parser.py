@@ -1,3 +1,6 @@
+from src.yalex.regex_parser import RegexParser
+
+
 def remove_comments(content):
     result = ""
     in_comment = False
@@ -34,8 +37,9 @@ class FileParser:
         self.file_content = file_content
         self.declarations_content, self.rules_content, self.code_content = split_file(file_content)
         self.identifiers = {}
-        self.rules = {}
+        self.rules = {}  # {rule: {regex: return}}
         self.process_rules(self.rules_content)
+        self.parse_rules()
 
     def process_rules(self, rules_content: str):
         lines = rules_content.split("\n")
@@ -68,3 +72,21 @@ class FileParser:
                         # To update the index of the main loop to the last line read
                         i = j
                         break
+
+    def parse_rules(self):
+        parser = RegexParser(self.identifiers)
+        new_rules = {}
+        for rule in self.rules:
+            new_rules[rule] = {}
+            for regex in self.rules[rule].keys():
+                # Since the keys are the regex, we need to parse them and create new keys
+                new_regex = parser.parse(regex)
+                new_rules[rule][new_regex] = self.rules[rule][regex]
+        self.rules = new_rules
+
+    def get_full_regex(self):
+        full_regex = ''
+        for rule in self.rules:
+            for regex in self.rules[rule].keys():
+                full_regex += f"({regex})|"
+        return full_regex[:-1]  # Remove the last '|'
