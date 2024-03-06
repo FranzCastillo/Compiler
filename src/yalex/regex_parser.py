@@ -2,7 +2,7 @@ class RegexParser:
     def __init__(self, identifiers: dict):
         self.identifiers = identifiers
 
-    # TODO:Implement a way to handle 'chars' and escape characters
+    # TODO:Implement a way to handle \n, \t
     def parse(self, regex: str):
         stack = []
         i = 0
@@ -33,6 +33,13 @@ class RegexParser:
                     stack.append(string_content[:-1] + ')')
                 elif next_char == '^':  # Any character except the ones in the set
                     i += 1
+            elif char == '"':  # Set of chars
+                string_content = ''
+                i += 1
+                while regex[i] != '"':
+                    string_content += regex[i] + '.'
+                    i += 1
+                stack.append(f"({string_content[:-1]})")
             else:
                 stack.append(char)
             i += 1
