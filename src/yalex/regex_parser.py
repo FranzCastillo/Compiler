@@ -3,20 +3,33 @@ class RegexParser:
         self.identifiers = identifiers
 
     def parse(self, regex: str):
-        new_regex = regex
-        initial_char = regex[0]
-        if initial_char == "'":  # 'regular-char | escape-sequence'
-            pass
-        elif initial_char == '_':
-            pass
-        elif initial_char == '[':  # [ character-set ]
-            next_char = regex[1]
-            if next_char == '^':  # Denota cualquier símbolo que no pertenece al character-set
+        stack = []
+        for i in range(len(regex)):
+            char = regex[i]
+            if char == "'":  # Constant or scape character
                 pass
-            else:  # Denota un conjunto de símbolos.
+            elif char == "_":  # Any character
                 pass
-        elif initial_char == '(':  # ( regex )
-            pass
-        else:  # Identificadores
-            pass
+            elif char == '"':  # Chain of characters may contain scape characters
+                pass
+            elif char == "[":  # Set of characters
+                next_char = regex[i + 1]
+                if next_char == "'":  # Simple symbol
+                    pass
+                elif next_char == '"':  # Chain of characters
+                    pass
+                elif next_char == '^':  # Any character except the ones in the set
+                    pass
+            elif char == '#':  # Difference set of two regex
+                pass
+            elif char == '*':  # Kleene Closure
+                pass
+            elif char == '+':  # Positive Closure
+                pass
+            elif char == '?':  # Optional
+                pass
+            elif char == '|':  # Union
+                pass
+
+
         return new_regex
