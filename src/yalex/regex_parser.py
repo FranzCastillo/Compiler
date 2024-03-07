@@ -28,7 +28,10 @@ class RegexParser:
                         while regex[i] != ']':
                             if regex[i] == "'":
                                 i += 1
-                                content_list.append(regex[i])
+                                if regex[i] in escape_characters:
+                                    content_list.append(f"\\{regex[i]}")
+                                else:
+                                    content_list.append(regex[i])
                                 i += 2  # Skip the last '
                             elif regex[i] == '"':
                                 temp = ''
@@ -60,6 +63,14 @@ class RegexParser:
                     string_content += regex[i] + CONCAT
                     i += 1
                 stack.append(f"({string_content[:-1]})")
+            elif char == "'":  # Simple symbol
+                i += 1
+                next_char = regex[i]
+                if next_char in escape_characters:
+                    stack.append(f"\\{next_char}")
+                else:
+                    stack.append(next_char)
+                i += 1
             else:
                 stack.append(char)
             i += 1

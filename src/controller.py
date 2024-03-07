@@ -59,7 +59,7 @@ class Controller:
         try:
             file_parser = FileParser(content)
             full_regex = file_parser.get_full_regex()
-            # self.set_regex(full_regex)
+            self.set_regex(full_regex)
         except Exception as e:
             print_console(f"Error: {e}")
 
