@@ -48,11 +48,11 @@ class FileParser:
         Process the identifiers/rules from the file content and store them in dictionaries.
         """
         lines = rules_content.split("\n")
+        # Remove empty lines
+        lines = [line for line in lines if line.strip()]
 
         for i in range(len(lines)):
             line = lines[i].strip()
-            if not line:
-                continue
             parts = line.split(" ")
             if parts[0] == "let":
                 self.identifiers[parts[1]] = ' '.join(parts[3:])
