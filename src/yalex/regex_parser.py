@@ -1,3 +1,6 @@
+from src.regex.operators_values import *
+
+
 class RegexParser:
     def __init__(self, identifiers: dict):
         self.identifiers = identifiers
@@ -16,18 +19,35 @@ class RegexParser:
                     is_range = regex[i + 3] == '-'
                     if is_range:  # ['a'-'z''A'-'Z''0'-'9']
                         while regex[i] != ']':
-                            string_content += regex[i] if regex[i] != "'" else ''
+                            string_content += regex[i] if regex[i] != "'" else ''  # Skip '
                             i += 1
                         stack.append(f"[{string_content}]")
 
                     else:  # Union of chars
-                        pass
+                        content_list = []
+                        while regex[i] != ']':
+                            if regex[i] == "'":
+                                i += 1
+                                content_list.append(regex[i])
+                                i += 2  # Skip the last '
+                            elif regex[i] == '"':
+                                temp = ''
+                                i += 1
+                                while regex[i] != '"':
+                                    temp += regex[i] + CONCAT
+                                    i += 1
+                                i += 1  # Skip "
+                                content_list.append(f"({temp[:-1]})")
+                            else:
+                                i += 1
+
+                        stack.append(f"({UNION.join(content_list)})")
 
                 elif next_char == '"':  # Chain of characters
                     string_content = '('
                     i += 2  # Skip ["
                     while regex[i] != '"':
-                        string_content += regex[i] + '|'
+                        string_content += regex[i] + UNION
                         i += 1
                     i += 1  # Skip "
                     stack.append(string_content[:-1] + ')')
@@ -37,7 +57,7 @@ class RegexParser:
                 string_content = ''
                 i += 1
                 while regex[i] != '"':
-                    string_content += regex[i] + '.'
+                    string_content += regex[i] + CONCAT
                     i += 1
                 stack.append(f"({string_content[:-1]})")
             else:
