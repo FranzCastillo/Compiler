@@ -75,22 +75,20 @@ def expand_ranges(regex):
                 stack.pop()
                 temp.reverse()
                 stack.append(temp)
-        elif char != '-':
+        else:
             stack.append(char)
 
     new_regex = ''
     for char_range in stack:
         if isinstance(char_range, list):
-            if len(char_range) % 2 != 0:
+            if len(char_range) % 3 != 0:
                 raise Exception("Invalid regular expression. Invalid range.")
 
             new_regex += OPEN_PAREN
 
-            for i in range(0, len(char_range), 2):
-                lower = char_range[i]
-                upper = char_range[i + 1]
+            for i in range(0, len(char_range), 3):
                 lower_ascii = ord(char_range[i])
-                upper_ascii = ord(char_range[i + 1])
+                upper_ascii = ord(char_range[i + 2])
                 if 65 <= lower_ascii <= 90 and 97 <= upper_ascii <= 122:
                     raise Exception(
                         "Invalid regular expression. Invalid range. Lower bound is an upper case letter and upper "
@@ -129,8 +127,14 @@ class ShuntingYard:
     def get_postfix(self):
         output = ''
         stack = []
+        was_backslash = False
         for char in self.regex:
-            if char in operators and char != CLOSE_PAREN and char != OPEN_PAREN:
+            if was_backslash:
+                output += char
+                was_backslash = False
+            elif char == '\\':
+                was_backslash = True
+            elif char in operators and char != CLOSE_PAREN and char != OPEN_PAREN:
                 while (
                         stack and
                         stack[-1] in operators and
