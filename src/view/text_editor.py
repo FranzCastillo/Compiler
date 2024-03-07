@@ -52,6 +52,7 @@ class TextEditor:
 
     def new_file(self):
         self.text.delete(1.0, tk.END)
+        self.current_file = None
 
     def open_file(self, event=None):
         try:
