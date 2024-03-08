@@ -154,9 +154,6 @@ class ShuntingYard:
         temp_regex = insert_concat_operator(new_regex)
         self.tokens = tokenize(temp_regex)
 
-    # TODO:
-    #  Handle escape characters
-    #  Tokens for each char ?
     def get_postfix(self):
         output = []
         stack = []
@@ -165,8 +162,10 @@ class ShuntingYard:
                 while (
                         stack and
                         stack[-1].type == 'OP' and
-                        ((associativity[token.value] == 'left' and precedence[token.value] <= precedence[stack[-1].value]) or
-                         (associativity[token.value] == 'right' and precedence[token.value] < precedence[stack[-1]].value))
+                        ((associativity[token.value] == 'left' and precedence[token.value] <= precedence[
+                            stack[-1].value]) or
+                         (associativity[token.value] == 'right' and precedence[token.value] < precedence[
+                             stack[-1]].value))
                 ):
                     output.append(stack.pop())
                 stack.append(token)
