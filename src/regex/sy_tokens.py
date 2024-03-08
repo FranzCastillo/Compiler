@@ -8,3 +8,9 @@ class SyToken:
 
     def __str__(self):
         return f"{self.value}"
+
+    def __repr__(self):
+        return f"{self.value}"
+
+    def __hash__(self):
+        return hash((self.type, self.value))

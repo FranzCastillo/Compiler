@@ -8,6 +8,9 @@ class Fragment:
         self.start = start
         self.out = out
 
+    def __str__(self):
+        return f"{self.start} -> {self.out}"
+
 
 def add_union(frag1, frag2):
     """Add a union between two fragments"""
@@ -41,10 +44,10 @@ def add_symbol(symbol):
     """Add a symbol to a fragment"""
     start = State()
     out = State()
-    if symbol == Operator.EPSILON.symbol:
+    if symbol.value == Operator.EPSILON.symbol:
         start.add_epsilon_transition(out)
     else:
-        start.add_transition(symbol, out)
+        start.add_transition(symbol.value, out)
     return Fragment(start, out)
 
 
@@ -68,44 +71,44 @@ def add_question_mark(frag):
     return Fragment(start, out)
 
 
-def build_automaton(regex):
+def build_automaton(regex: list):
     """Parse a postfix regular expression into a fragment"""
     stack = []
-    for char in regex:
-        if char == Operator.UNION.symbol:
+    for token in regex:
+        if token.value == Operator.UNION.symbol:
             if len(stack) < 2:
                 raise Exception("Invalid regular expression. Not enough operands for union operator.")
 
             frag2 = stack.pop()
             frag1 = stack.pop()
             stack.append(add_union(frag1, frag2))
-        elif char == Operator.CONCAT.symbol:
+        elif token.value == Operator.CONCAT.symbol:
             if len(stack) < 2:
                 raise Exception("Invalid regular expression. Not enough operands for concatenation operator.")
 
             frag2 = stack.pop()
             frag1 = stack.pop()
             stack.append(add_concat(frag1, frag2))
-        elif char == Operator.KLEENE_STAR.symbol:
+        elif token.value == Operator.KLEENE_STAR.symbol:
             if len(stack) < 1:
                 raise Exception("Invalid regular expression. Not enough operands for kleene star operator.")
 
             frag = stack.pop()
             stack.append(add_kleene_star(frag))
-        elif char == Operator.KLEENE_PLUS.symbol:
+        elif token.value == Operator.KLEENE_PLUS.symbol:
             if len(stack) < 1:
                 raise Exception("Invalid regular expression. Not enough operands for kleene plus operator.")
 
             frag = stack.pop()
             stack.append(add_kleene_plus(frag))
-        elif char == Operator.QUESTION_MARK.symbol:
+        elif token.value == Operator.QUESTION_MARK.symbol:
             if len(stack) < 1:
                 raise Exception("Invalid regular expression. Not enough operands for question mark operator.")
 
             frag = stack.pop()
             stack.append(add_question_mark(frag))
         else:
-            stack.append(add_symbol(char))
+            stack.append(add_symbol(token))
     return stack.pop()
 
 
@@ -138,7 +141,7 @@ def _get_states(current_state, states):
             _get_states(next_state, states)
 
 
-def get_alphabet(regex):
+def get_alphabet(regex: list):
     """
     Get the alphabet of the regular expression.
     :param regex:
@@ -146,9 +149,9 @@ def get_alphabet(regex):
     """
     alphabet = set()
     operators = [Operator.KLEENE_STAR.symbol, Operator.CONCAT.symbol, Operator.UNION.symbol]
-    for char in regex:
-        if char not in alphabet and char not in operators:
-            alphabet.add(char)
+    for token in regex:
+        if token.value not in alphabet and token.value not in operators:
+            alphabet.add(token.value)
     return alphabet
 
 
@@ -185,13 +188,13 @@ class NFA:
     A non-deterministic finite automaton.
     """
 
-    def __init__(self, regex):
+    def __init__(self, regex: list):
         self.regex = regex
         self.start = None
         self.end = None
         self.automaton = None
 
-        if regex == '' or regex == Operator.EPSILON.symbol:
+        if len(regex) == 0 or regex[0].value == Operator.EPSILON.symbol:
             self.end = self.start
         else:
             self.automaton = build_automaton(regex)

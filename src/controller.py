@@ -7,6 +7,7 @@ from src.regex.shunting_yard import ShuntingYard
 from src.view.automaton import ViewAutomaton
 from src.view.tree import ViewTree
 from src.yalex.file_parser import FileParser
+from src.regex.sy_tokens import SyToken
 
 
 def replace_postfix(postfix):
@@ -21,8 +22,8 @@ def replace_postfix(postfix):
                 temp = []
                 for inside_token in right:
                     temp.append(inside_token)
-                temp.append(EPSILON)
-                temp.append(UNION)
+                temp.append(SyToken('CHAR', EPSILON))
+                temp.append(SyToken('OP', UNION))
                 stack.append(temp)
             elif token.value == KLEENE_PLUS:
                 # stack.append([right, right, KLEENE_STAR, CONCAT])
@@ -31,8 +32,8 @@ def replace_postfix(postfix):
                     temp.append(inside_token)
                 for inside_token in right:
                     temp.append(inside_token)
-                temp.append(KLEENE_STAR)
-                temp.append(CONCAT)
+                temp.append(SyToken('OP', CONCAT))
+                temp.append(SyToken('OP', KLEENE_STAR))
                 stack.append(temp)
             else:
                 # stack.append([right, token.value])
@@ -76,15 +77,20 @@ class Controller:
             # Object to create the PDFs of the automata
             self.automaton_viewer = ViewAutomaton()
             self.tree_viewer = ViewTree()
-            # self.process_grammars()
         except Exception as e:
             print(e)
 
     def run_file(self, print_console: callable, content: str):
+        """
+        TODO:
+        - Handle #, _ [^]
+        """
         try:
             file_parser = FileParser(content)
             full_regex = file_parser.get_full_regex()
             self.set_regex(full_regex)
+            self.view_automatons()
+
         except Exception as e:
             print_console(f"Error: {e}")
 
@@ -93,8 +99,8 @@ class Controller:
             self.view_nfa("NFA")
             self.view_dfa("DFA")
             self.view_min_dfa("MIN_DFA")
-            self.view_direct_dfa("DIRECT_DFA")
-            self.view_min_direct_dfa("MIN_DIRECT_DFA")
+            # self.view_direct_dfa("DIRECT_DFA")
+            # self.view_min_direct_dfa("MIN_DIRECT_DFA")
         except Exception as e:
             print(e)
 
@@ -126,10 +132,10 @@ class Controller:
             min_dfa = MinifiedDFA(self.dfa_grammar)
             self.min_dfa_grammar = min_dfa.get_grammar()
 
-            self.direct_dfa = DirectDFA(self.postfix)
-            self.direct_dfa_grammar = self.direct_dfa.get_grammar()
-
-            self.min_direct_dfa_grammar = MinifiedDFA(self.direct_dfa_grammar).get_grammar()
+            # self.direct_dfa = DirectDFA(self.postfix)
+            # self.direct_dfa_grammar = self.direct_dfa.get_grammar()
+            #
+            # self.min_direct_dfa_grammar = MinifiedDFA(self.direct_dfa_grammar).get_grammar()
 
             self.grammars_processed = True
         except Exception as e:
