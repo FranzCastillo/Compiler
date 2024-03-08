@@ -8,6 +8,7 @@ from src.view.automaton import ViewAutomaton
 from src.view.tree import ViewTree
 from src.yalex.file_parser import FileParser
 from src.regex.sy_tokens import SyToken
+from src.view.yalex_result import YalexResult
 
 
 def replace_postfix(postfix):
@@ -87,9 +88,18 @@ class Controller:
         """
         try:
             file_parser = FileParser(content)
-            full_regex = file_parser.get_full_regex()
-            self.set_regex(full_regex)
-            self.view_automatons()
+            rules = file_parser.rules
+            # self.set_regex(full_regex)
+            # self.view_automatons()
+            grammars = {}
+            for rule in rules:
+                grammars[rule] = []
+                for regex in rules[rule]:
+                    self.set_regex(regex)
+                    grammars[rule].append(self.nfa_grammar)
+
+            yalex_result = YalexResult(grammars, print_console)
+            yalex_result.view()
 
         except Exception as e:
             print_console(f"Error: {e}")
@@ -97,8 +107,8 @@ class Controller:
     def view_automatons(self):
         try:
             self.view_nfa("NFA")
-            self.view_dfa("DFA")
-            self.view_min_dfa("MIN_DFA")
+            # self.view_dfa("DFA")
+            # self.view_min_dfa("MIN_DFA")
             # self.view_direct_dfa("DIRECT_DFA")
             # self.view_min_direct_dfa("MIN_DIRECT_DFA")
         except Exception as e:
@@ -125,17 +135,6 @@ class Controller:
 
             nfa = NFA(self.postfix)
             self.nfa_grammar = nfa.get_grammar()
-
-            dfa = DFA(self.nfa_grammar)
-            self.dfa_grammar = dfa.get_grammar(show_death_state=False)
-
-            min_dfa = MinifiedDFA(self.dfa_grammar)
-            self.min_dfa_grammar = min_dfa.get_grammar()
-
-            # self.direct_dfa = DirectDFA(self.postfix)
-            # self.direct_dfa_grammar = self.direct_dfa.get_grammar()
-            #
-            # self.min_direct_dfa_grammar = MinifiedDFA(self.direct_dfa_grammar).get_grammar()
 
             self.grammars_processed = True
         except Exception as e:
