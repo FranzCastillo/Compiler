@@ -52,7 +52,11 @@ class RegexParser:
                     string_content = '('
                     i += 2  # Skip ["
                     while regex[i] != '"':
-                        string_content += regex[i] + UNION
+                        current_char = regex[i]
+                        if current_char in escape_characters:
+                            string_content += f"\\{current_char}" + CONCAT
+                        else:
+                            string_content += regex[i] + UNION
                         i += 1
                     i += 1  # Skip "
                     stack.append(string_content[:-1] + ')')
@@ -62,7 +66,11 @@ class RegexParser:
                 string_content = ''
                 i += 1
                 while regex[i] != '"':
-                    string_content += regex[i] + CONCAT
+                    current_char = regex[i]
+                    if current_char in escape_characters:
+                        string_content += f"\\{current_char}" + CONCAT
+                    else:
+                        string_content += regex[i] + CONCAT
                     i += 1
                 stack.append(f"({string_content[:-1]})")
             elif char == "'":  # Simple symbol
