@@ -14,22 +14,47 @@ def replace_postfix(postfix):
     Replaces x? with xε| and x+ with xx*.
     """
     stack = []
-    for char in postfix:
-        if char in unary_operators:
+    for token in postfix:
+        if token.value in unary_operators:
             right = stack.pop()
-            if char == QUESTION_MARK:
-                stack.append(f"{right}{EPSILON}{UNION}")
-            elif char == KLEENE_PLUS:
-                stack.append(f"{right}{right}{KLEENE_STAR}{CONCAT}")
+            if token.value == QUESTION_MARK:
+                temp = []
+                for inside_token in right:
+                    temp.append(inside_token)
+                temp.append(EPSILON)
+                temp.append(UNION)
+                stack.append(temp)
+            elif token.value == KLEENE_PLUS:
+                # stack.append([right, right, KLEENE_STAR, CONCAT])
+                temp = []
+                for inside_token in right:
+                    temp.append(inside_token)
+                for inside_token in right:
+                    temp.append(inside_token)
+                temp.append(KLEENE_STAR)
+                temp.append(CONCAT)
+                stack.append(temp)
             else:
-                stack.append(f"{right}{char}")
-        elif char in operators:
+                # stack.append([right, token.value])
+                temp = []
+                for inside_token in right:
+                    temp.append(inside_token)
+                temp.append(token)
+                stack.append(temp)
+        elif token.value in operators:
             right = stack.pop()
             left = stack.pop()
-            stack.append(f"{left}{right}{char}")
+            # stack.append([left, right, token])
+            temp = []
+            for inside_token in left:
+                temp.append(inside_token)
+            for inside_token in right:
+                temp.append(inside_token)
+            temp.append(token)
+            stack.append(temp)
         else:
-            stack.append(char)
-    return stack.pop()
+            stack.append([token])
+    return stack[0]
 
 
 class Controller:
