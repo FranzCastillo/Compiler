@@ -84,7 +84,7 @@ class Controller:
     def run_file(self, print_console: callable, content: str):
         """
         TODO:
-        - Handle #, _ [^]
+        - Handle #, _ [^] and escape characters
         """
         try:
             file_parser = FileParser(content)
@@ -94,7 +94,7 @@ class Controller:
                 grammars[rule] = []
                 for regex in rules[rule]:
                     self.set_regex(regex)
-                    grammars[rule].append(self.nfa_grammar)
+                    grammars[rule].append(self.direct_dfa_grammar)
 
             yalex_result = YalexResult(grammars, print_console)
             yalex_result.view()
@@ -104,10 +104,10 @@ class Controller:
 
     def view_automatons(self):
         try:
-            self.view_nfa("NFA")
+            # self.view_nfa("NFA")
             # self.view_dfa("DFA")
             # self.view_min_dfa("MIN_DFA")
-            # self.view_direct_dfa("DIRECT_DFA")
+            self.view_direct_dfa("DIRECT_DFA")
             # self.view_min_direct_dfa("MIN_DIRECT_DFA")
         except Exception as e:
             print(e)
@@ -131,8 +131,8 @@ class Controller:
             postfix = sy.get_postfix()
             self.postfix = replace_postfix(postfix)
 
-            nfa = NFA(self.postfix)
-            self.nfa_grammar = nfa.get_grammar()
+            direct_dfa = DirectDFA(self.postfix)
+            self.direct_dfa_grammar = direct_dfa.get_grammar()
 
             self.grammars_processed = True
         except Exception as e:

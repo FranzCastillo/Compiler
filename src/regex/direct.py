@@ -2,6 +2,7 @@ from src.regex.grammar import Grammar
 from src.regex.operators_values import *
 from src.regex.shunting_yard import ShuntingYard
 from src.regex.state import State
+from src.regex.sy_tokens import SyToken
 from src.structures.node import Node
 
 
@@ -24,22 +25,23 @@ def build_syntax_tree(regex):
     """
     stack = []
     tag = 1
-    for char in regex:
-        if char not in operators:
-            if char == EPSILON:
-                stack.append(Node(char, tag=EPSILON))
+    for token_obj in regex:
+        token = token_obj.value
+        if token not in operators:
+            if token == EPSILON:
+                stack.append(Node(token, tag=EPSILON))
             else:
-                stack.append(Node(char, tag=tag))
+                stack.append(Node(token, tag=tag))
                 tag += 1
         else:
-            if char == KLEENE_STAR:
+            if token == KLEENE_STAR:
                 left = stack.pop()
-                node = Node(char, left)
+                node = Node(token, left)
                 stack.append(node)
             else:  # Binary operator
                 right = stack.pop()
                 left = stack.pop()
-                node = Node(char, left, right)
+                node = Node(token, left, right)
                 stack.append(node)
 
     return stack.pop()
@@ -169,30 +171,37 @@ def get_alphabet(regex):
     :return:
     """
     alphabet = {AUGMENTED}
-    for char in regex:
-        if (
-                char not in operators and
-                char not in unary_operators and
-                char != EPSILON and
-                char != OPEN_PAREN and
-                char != CLOSE_PAREN
-        ):
-            alphabet.add(char)
+    operators = [Operator.KLEENE_STAR.symbol, Operator.CONCAT.symbol, Operator.UNION.symbol]
+    for token in regex:
+        if token.value not in alphabet and token.value not in operators:
+            alphabet.add(token.value)
     return alphabet
 
 
 def postfix_to_infix(postfix):
     stack = []
-    for char in postfix:
-        if char in unary_operators:
+    for token in postfix:
+        if token.value in unary_operators:
             right = stack.pop()
-            stack.append(f"({right}{char})")
-        elif char in operators:
+            temp = [SyToken('OPEN_PAREN', '(')]
+            for inside_token in right:
+                temp.append(inside_token)
+            temp.append(token)
+            temp.append(SyToken('CLOSE_PAREN', ')'))
+            stack.append(temp)
+        elif token.value in operators:
             right = stack.pop()
             left = stack.pop()
-            stack.append(f"({left}{char}{right})")
+            temp = [SyToken('OPEN_PAREN', '(')]
+            for inside_token in left:
+                temp.append(inside_token)
+            temp.append(token)
+            for inside_token in right:
+                temp.append(inside_token)
+            temp.append(SyToken('CLOSE_PAREN', ')'))
+            stack.append(temp)
         else:
-            stack.append(char)
+            stack.append([token])
     return stack.pop()
 
 
@@ -200,10 +209,9 @@ class DirectDFA:
     def __init__(self, regex):
         if not regex:
             raise Exception("Regex not set")
-        self.regex = postfix_to_infix(regex)
+        self.regex = regex
         self.alphabet = get_alphabet(self.regex)
-        self.postfix_regex = get_postfix(self.regex)
-        self.augmented_regex = self.postfix_regex + Operator.AUGMENTED.symbol + CONCAT
+        self.augmented_regex = self.regex + [SyToken('OP', AUGMENTED), SyToken('OP', CONCAT)]
         self.syntax_tree = build_syntax_tree(self.augmented_regex)
         apply_nullable(self.syntax_tree)
         apply_first_pos(self.syntax_tree)
