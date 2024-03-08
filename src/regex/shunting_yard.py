@@ -1,4 +1,5 @@
 from src.regex.operators_values import *
+from src.regex.sy_tokens import SyToken
 
 
 def get_alphabet(regex):
@@ -43,10 +44,38 @@ def insert_concat_operator(regex):
             elif current_char == CLOSE_PAREN and next_char == OPEN_PAREN:
                 should_concat = True
 
-            if should_concat:
+            if should_concat and current_char != '\\':
                 new_regex += CONCAT
 
     return new_regex
+
+
+def tokenize(regex):
+    """
+    Tokenize the regular expression.
+    :param regex:
+    :return:
+    """
+    tokens = []
+    length = len(regex)
+    i = 0
+    while i < length:
+        char = regex[i]
+        if char in operators:
+            tokens.append(SyToken('OP', char))
+        elif char == OPEN_PAREN:
+            tokens.append(SyToken('OPEN_PAREN', char))
+        elif char == CLOSE_PAREN:
+            tokens.append(SyToken('CLOSE_PAREN', char))
+        else:  # Chars
+            if char == "\\":
+                next_char = regex[i + 1]
+                tokens.append(SyToken('CHAR', f'{char}{next_char}'))
+                i += 1
+            else:
+                tokens.append(SyToken('CHAR', char))
+        i += 1
+    return tokens
 
 
 def expand_ranges(regex):
@@ -116,48 +145,46 @@ class ShuntingYard:
 
     def __init__(self):
         self.alphabet = None
-        self.regex = None
+        self.tokens = None
 
     def set_regex(self, regex):
         new_regex = expand_ranges(regex)
         # new_regex = replace_symbols(new_regex)
         self.alphabet = get_alphabet(new_regex)
-        self.regex = insert_concat_operator(new_regex)
+        temp_regex = insert_concat_operator(new_regex)
+        self.tokens = tokenize(temp_regex)
 
+    # TODO:
+    #  Handle escape characters
+    #  Tokens for each char ?
     def get_postfix(self):
-        output = ''
+        output = []
         stack = []
-        was_backslash = False
-        for char in self.regex:
-            if was_backslash:
-                output += char
-                was_backslash = False
-            elif char == '\\':
-                was_backslash = True
-            elif char in operators and char != CLOSE_PAREN and char != OPEN_PAREN:
+        for token in self.tokens:
+            if token.type == 'OP':
                 while (
                         stack and
-                        stack[-1] in operators and
-                        ((associativity[char] == 'left' and precedence[char] <= precedence[stack[-1]]) or
-                         (associativity[char] == 'right' and precedence[char] < precedence[stack[-1]]))
+                        stack[-1].type == 'OP' and
+                        ((associativity[token.value] == 'left' and precedence[token.value] <= precedence[stack[-1].value]) or
+                         (associativity[token.value] == 'right' and precedence[token.value] < precedence[stack[-1]].value))
                 ):
-                    output += stack.pop()
-                stack.append(char)
-            elif char == OPEN_PAREN:
-                stack.append(char)
-            elif char == CLOSE_PAREN:
-                while stack and stack[-1] != OPEN_PAREN:
-                    output += stack.pop()
+                    output.append(stack.pop())
+                stack.append(token)
+            elif token.type == 'OPEN_PAREN':
+                stack.append(token)
+            elif token.type == 'CLOSE_PAREN':
+                while stack and stack[-1].type != 'OPEN_PAREN':
+                    output.append(stack.pop())
 
                 if not stack:
                     raise Exception("Invalid regular expression. Mismatched parentheses.")
 
                 stack.pop()
             else:
-                output += char
+                output.append(token)
 
         while stack:
-            if stack[-1] in (OPEN_PAREN, CLOSE_PAREN):
+            if stack[-1].type in ('OPEN_PAREN', 'CLOSE_PAREN'):
                 raise Exception("Invalid regular expression. Mismatched parentheses.")
-            output += stack.pop()
+            output.append(stack.pop())
         return output
