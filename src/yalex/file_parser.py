@@ -1,4 +1,5 @@
 from src.yalex.regex_parser import RegexParser
+from src.regex.operators_values import EPSILON, CONCAT
 
 
 def remove_comments(content):
@@ -122,8 +123,8 @@ class FileParser:
         self.rules = new_rules
 
     def get_full_regex(self):
-        full_regex = ''
+        full_regex = f''
         for rule in self.rules:
             for regex in self.rules[rule].keys():
-                full_regex += f"({regex})|"
+                full_regex += f"({EPSILON}{CONCAT}{regex})|"
         return full_regex[:-1]  # Remove the last '|'

@@ -194,7 +194,7 @@ class NFA:
         self.end = None
         self.automaton = None
 
-        if len(regex) == 0 or regex[0].value == Operator.EPSILON.symbol:
+        if len(regex) == 0:
             self.end = self.start
         else:
             self.automaton = build_automaton(regex)
