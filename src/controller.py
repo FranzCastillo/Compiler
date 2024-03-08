@@ -33,8 +33,8 @@ def replace_postfix(postfix):
                     temp.append(inside_token)
                 for inside_token in right:
                     temp.append(inside_token)
-                temp.append(SyToken('OP', CONCAT))
                 temp.append(SyToken('OP', KLEENE_STAR))
+                temp.append(SyToken('OP', CONCAT))
                 stack.append(temp)
             else:
                 # stack.append([right, token.value])

@@ -50,9 +50,10 @@ class FileParser:
         """
         lines = rules_content.split("\n")
         # Remove empty lines
-        lines = [line for line in lines if line.strip()]
+        lines = [line for line in lines if line.strip() != ""]
 
-        for i in range(len(lines)):
+        i = 0
+        while i < len(lines):
             line = lines[i].strip()
             parts = line.split(" ")
             if parts[0] == "let":
@@ -67,17 +68,16 @@ class FileParser:
                 self.rules[parts[1]][rule_regex] = rule_return
 
                 # Keep reading until no more specific rules are found for this rule
-                for j in range(i + 2, len(lines)):
-                    if lines[j].strip().startswith("|"):
-                        next_rule = lines[j].strip()
-                        next_rule_parts = next_rule.split("{")
-                        rule_regex = next_rule_parts[0].replace('|', '').strip()
-                        rule_return = next_rule_parts[1].replace('}', '').strip()
-                        self.rules[parts[1]][rule_regex] = rule_return
-                    else:
-                        # To update the index of the main loop to the last line read
-                        i = j
-                        break
+                j = i + 2
+                while j < len(lines) and lines[j].strip().startswith("|"):
+                    next_rule = lines[j].strip()
+                    next_rule_parts = next_rule.split("{")
+                    rule_regex = next_rule_parts[0].replace('|', '').strip()
+                    rule_return = next_rule_parts[1].replace('}', '').strip()
+                    self.rules[parts[1]][rule_regex] = rule_return
+                    j += 1
+                i = j
+            i += 1
 
     def replace_identifiers(self):
         """

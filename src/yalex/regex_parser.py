@@ -29,6 +29,9 @@ class RegexParser:
                                 i += 1
                                 if regex[i] in escape_characters:
                                     content_list.append(f"\\{regex[i]}")
+                                elif regex[i] == '\\':
+                                    content_list.append(f"\\{regex[i + 1]}")
+                                    i += 1
                                 else:
                                     content_list.append(regex[i])
                                 i += 2  # Skip the last '

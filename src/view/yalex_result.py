@@ -30,7 +30,7 @@ class YalexResult:
                 self._visualize(grammar.start)
 
             self.dot.render(rule, format='pdf', cleanup=True, directory='output')
-            print(f"- Automaton saved on 'output/{rule}.pdf'")
+            self.print_console(f"- Automaton saved on 'output/{rule}.pdf'")
 
     def _visualize(self, state):
         if state in self.visited:
@@ -38,7 +38,11 @@ class YalexResult:
         self.visited.add(state)
         for transition in state.transitions:
             for next_state in state.transitions[transition]:
-                self.dot.edge(str(state.value), str(next_state.value), label=transition)
+                temp_transition = transition
+                if transition[0] == '\\':
+                    temp_transition = f'\\{transition}'
+
+                self.dot.edge(str(state.value), str(next_state.value), label=temp_transition)
                 self._visualize(next_state)
         for nextState in state.epsilon_transitions:
             self.dot.edge(str(state.value), str(nextState.value), label=Operator.EPSILON.symbol)
