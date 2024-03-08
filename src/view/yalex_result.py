@@ -15,7 +15,9 @@ class YalexResult:
         self.dot.attr('node', shape='circle')
 
     def view(self):
-        self.dot.node('start', shape='point')
+        self.dot.node('start_point', shape='point')
+        self.dot.node('-1', shape='circle')
+        self.dot.edge('start_point', '-1')
 
         for rule in self.rules:
             for grammar in self.rules[rule]:
@@ -24,7 +26,7 @@ class YalexResult:
 
             # Add an epsilon transition to the start of each grammar
             for grammar in self.rules[rule]:
-                self.dot.edge('start', str(grammar.start.value), label=Operator.EPSILON.symbol)
+                self.dot.edge('-1', str(grammar.start.value), label=Operator.EPSILON.symbol)
                 self._visualize(grammar.start)
 
             self.dot.render(rule, format='pdf', cleanup=True, directory='output')

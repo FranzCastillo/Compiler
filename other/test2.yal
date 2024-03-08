@@ -9,9 +9,7 @@ let numbers = ['0'-'9']
 let hello = "Hello World!"
 
 rule gettoken =
-[' ' '\t'] { return lexbuf } (* skip blanks *)
-| ['\n'] { return EOL } 
-| ['0'-'9']+ { return int(lxm) }
+['0'-'9']+ { return int(lxm) }
 | '+' { return PLUS }
 | '-' { return MINUS }
 | '*' { return TIMES }
@@ -24,4 +22,6 @@ rule getidentifier =
 ['a'-'z']+ { return ID }
 %%
 print("Adios")
+
+
 

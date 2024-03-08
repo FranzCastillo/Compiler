@@ -5,7 +5,6 @@ class RegexParser:
     def __init__(self, identifiers: dict):
         self.identifiers = identifiers
 
-    # TODO:Implement a way to handle \n, \t → (\ . n | \ . t)
     def parse(self, regex: str):
         stack = []
         i = 0

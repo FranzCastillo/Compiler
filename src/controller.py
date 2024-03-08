@@ -89,8 +89,6 @@ class Controller:
         try:
             file_parser = FileParser(content)
             rules = file_parser.rules
-            # self.set_regex(full_regex)
-            # self.view_automatons()
             grammars = {}
             for rule in rules:
                 grammars[rule] = []
