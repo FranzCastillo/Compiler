@@ -76,8 +76,11 @@ class RegexParser:
             elif char == "'":  # Simple symbol
                 i += 1
                 next_char = regex[i]
-                if next_char in escape_characters:
+                if next_char in escape_characters:  # If it finds ., |, etc.
                     stack.append(f"\\{next_char}")
+                elif next_char == '\\':  # If it finds \, it will add the next char
+                    stack.append(f"\\{regex[i + 1]}")
+                    i += 1
                 else:
                     stack.append(next_char)
                 i += 1
