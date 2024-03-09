@@ -1,5 +1,6 @@
 from src.regex.operators_values import *
 
+ALL_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 class RegexParser:
     def __init__(self, identifiers: dict):
@@ -68,6 +69,8 @@ class RegexParser:
                 else:
                     stack.append(next_char)
                 i += 1
+            elif char == '_':  # Any character
+                stack.append(f"({UNION.join(ALL_CHARS)})")
             else:
                 stack.append(char)
             i += 1
