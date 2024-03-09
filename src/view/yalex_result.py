@@ -8,7 +8,7 @@ os.environ["PATH"] += os.pathsep + 'D:\\UVG\\Compiladores\\graphviz\\bin'
 class YalexResult:
     def __init__(self, rules: dict = None, print_console: callable = None):
         self.print_console = print_console
-        self.rules = rules
+        self.rules = rules  # {rule: [grammar]}
         self.visited = set()
         self.dot = Digraph(comment='YALex Visualization')
         self.dot.attr(rankdir='LR', size='8,5')
@@ -20,12 +20,14 @@ class YalexResult:
         self.dot.edge('start_point', '-1')
 
         for rule in self.rules:
-            for grammar in self.rules[rule]:
+            for grammar_dict in self.rules[rule]:
+                grammar = grammar_dict['grammar']
                 for state in grammar.accepting_states:
-                    self.dot.node(str(state.value), shape='doublecircle')
+                    self.dot.node(str(state.value), shape='doublecircle', xlabel=grammar_dict['return'])
 
             # Add an epsilon transition to the start of each grammar
-            for grammar in self.rules[rule]:
+            for grammar_dict in self.rules[rule]:
+                grammar = grammar_dict['grammar']
                 self.dot.edge('-1', str(grammar.start.value), label=Operator.EPSILON.symbol)
                 self._visualize(grammar.start)
 

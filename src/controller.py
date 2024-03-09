@@ -89,12 +89,15 @@ class Controller:
         try:
             file_parser = FileParser(content)
             rules = file_parser.rules
-            grammars = {}
+            grammars = {}  # {rule: [{grammar: Grammar, return: ""] }
             for rule in rules:
                 grammars[rule] = []
                 for regex in rules[rule]:
                     self.set_regex(regex)
-                    grammars[rule].append(self.direct_dfa_grammar)
+                    grammars[rule].append({
+                        "grammar": self.direct_dfa_grammar,
+                        "return": rules[rule][regex]
+                    })
 
             yalex_result = YalexResult(grammars, print_console)
             yalex_result.view()
