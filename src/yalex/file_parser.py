@@ -11,6 +11,8 @@ def remove_comments(content):
             in_comment = True
             i += 2
         elif content[i:i + 2] == '*)':
+            if not in_comment:
+                result += content[i:i + 2]  # Add the *) if it's not in a comment
             in_comment = False
             i += 2
         elif not in_comment:
