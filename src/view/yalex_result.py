@@ -15,11 +15,17 @@ class YalexResult:
         self.dot.attr('node', shape='circle')
 
     def view(self):
-        self.dot.node('start_point', shape='point')
-        self.dot.node('-1', shape='circle')
-        self.dot.edge('start_point', '-1')
-
         for rule in self.rules:
+            # Reset visited set and dot object for each rule
+            self.visited = set()
+            self.dot = Digraph(comment='YALex Visualization')
+            self.dot.attr(rankdir='LR', size='8,5')
+            self.dot.attr('node', shape='circle')
+
+            self.dot.node('start_point', shape='point')
+            self.dot.node('-1', shape='circle')
+            self.dot.edge('start_point', '-1')
+
             for grammar_dict in self.rules[rule]:
                 grammar = grammar_dict['grammar']
                 for state in grammar.accepting_states:

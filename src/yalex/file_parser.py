@@ -73,11 +73,11 @@ class FileParser:
                     next_rule = lines[j].strip()
                     next_rule_parts = next_rule.split("{")
                     rule_regex = next_rule_parts[0].strip()[1:].strip()  # Remove the '|'
-                    # rule_return = next_rule_parts[1].replace('}', '').strip()
                     rule_return = next_rule_parts[1].strip()[:-1].strip()  # Remove the '}'
                     self.rules[parts[1]][rule_regex] = rule_return
                     j += 1
                 i = j
+                continue
             i += 1
 
     def replace_identifiers(self):
