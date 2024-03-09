@@ -2,6 +2,15 @@ from src.regex.operators_values import *
 
 ALL_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
+
+def create_set(start, end) -> set:
+    return {chr(i) for i in range(ord(start), ord(end) + 1)}
+
+
+def get_all_chars_set() -> set:
+    return {char for char in ALL_CHARS}
+
+
 class RegexParser:
     def __init__(self, identifiers: dict):
         self.identifiers = identifiers
@@ -46,7 +55,20 @@ class RegexParser:
                                 i += 1
                         stack.append(f"({UNION.join(content_list)})")
                 elif next_char == '^':  # Any character except the ones in the set
-                    i += 1
+                    i += 2  # Skip ['
+                    string_content = ''
+                    while regex[i] != ']':
+                        string_content += regex[i] if regex[i] != "'" else ''  # Skip ' and -
+                        i += 1
+                    set_to_remove = set()
+                    j = 0
+                    while j < len(string_content):
+                        if string_content[j] == '-':
+                            set_to_remove.update(create_set(string_content[j - 1], string_content[j + 1]))
+                        j += 1
+                    new_set = get_all_chars_set() - set_to_remove
+                    stack.append(f"({UNION.join(new_set)})")
+
             elif char == '"':  # Set of chars
                 string_content = ''
                 i += 1
