@@ -12,16 +12,14 @@ class RegexParser:
             char = regex[i]
             if char == "[":  # Set of characters
                 next_char = regex[i + 1]
-                if next_char == "'":  # Simple symbol
-                    i += 1
-                    string_content = ''
-                    is_range = regex[i + 3] == '-'
-                    if is_range:  # ['a'-'z''A'-'Z''0'-'9']
+                if next_char == "'" or next_char == '"':  # Set of chars or range of chars
+                    if next_char == "'" and regex[i + 4] == '-':  # Range of chars ['a'-'z''A'-'Z''0'-'9']
+                        i += 2  # Skip ['
+                        string_content = ''
                         while regex[i] != ']':
                             string_content += regex[i] if regex[i] != "'" else ''  # Skip '
                             i += 1
                         stack.append(f"[{string_content}]")
-
                     else:  # Union of chars
                         content_list = []
                         while regex[i] != ']':
@@ -45,21 +43,7 @@ class RegexParser:
                                 content_list.append(f"({temp[:-1]})")
                             else:
                                 i += 1
-
                         stack.append(f"({UNION.join(content_list)})")
-
-                elif next_char == '"':  # Chain of characters
-                    string_content = '('
-                    i += 2  # Skip ["
-                    while regex[i] != '"':
-                        current_char = regex[i]
-                        if current_char in escape_characters:
-                            string_content += f"\\{current_char}" + CONCAT
-                        else:
-                            string_content += regex[i] + UNION
-                        i += 1
-                    i += 1  # Skip "
-                    stack.append(string_content[:-1] + ')')
                 elif next_char == '^':  # Any character except the ones in the set
                     i += 1
             elif char == '"':  # Set of chars
