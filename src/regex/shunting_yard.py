@@ -90,7 +90,7 @@ def expand_ranges(regex):
             stack.append(char)
         elif char == CLOSE_BRACKET:
             if len(stack) == 0:
-                raise Exception("Invalid regular expression. Mismatched brackets.")
+                raise Exception(f"Invalid regular expression {regex}. Mismatched brackets.")
             if len(stack) == 1:  # no range
                 stack.pop()
             else:
@@ -99,7 +99,7 @@ def expand_ranges(regex):
                     temp.append(stack.pop())
 
                 if len(temp) < 2:
-                    raise Exception("Invalid regular expression. Invalid range.")
+                    raise Exception(f"Invalid regular expression {regex}. Invalid range.")
 
                 stack.pop()
                 temp.reverse()
@@ -111,7 +111,7 @@ def expand_ranges(regex):
     for char_range in stack:
         if isinstance(char_range, list):
             if len(char_range) % 3 != 0:
-                raise Exception("Invalid regular expression. Invalid range.")
+                raise Exception(f"Invalid regular expression {regex}. Invalid range.")
 
             new_regex += OPEN_PAREN
 
@@ -120,12 +120,12 @@ def expand_ranges(regex):
                 upper_ascii = ord(char_range[i + 2])
                 if 65 <= lower_ascii <= 90 and 97 <= upper_ascii <= 122:
                     raise Exception(
-                        "Invalid regular expression. Invalid range. Lower bound is an upper case letter and upper "
+                        f"Invalid regular expression {regex}. Invalid range. Lower bound is an upper case letter and upper "
                         "bound is a lower case letter.")
 
                 if lower_ascii > upper_ascii:  # If both are lower case letters or both are upper case letters
                     raise Exception(
-                        "Invalid regular expression. Invalid range. Lower bound is greater than upper bound (in ASCII).")
+                        f"Invalid regular expression {regex}. Invalid range. Lower bound is greater than upper bound (in ASCII).")
 
                 for j in range(lower_ascii, upper_ascii + 1):
                     new_regex += chr(j) + UNION
@@ -148,11 +148,13 @@ class ShuntingYard:
         self.tokens = None
 
     def set_regex(self, regex):
-        new_regex = expand_ranges(regex)
-        # new_regex = replace_symbols(new_regex)
-        self.alphabet = get_alphabet(new_regex)
-        temp_regex = insert_concat_operator(new_regex)
-        self.tokens = tokenize(temp_regex)
+        try:
+            new_regex = expand_ranges(regex)
+            self.alphabet = get_alphabet(new_regex)
+            temp_regex = insert_concat_operator(new_regex)
+            self.tokens = tokenize(temp_regex)
+        except Exception as e:
+            raise Exception(f"Error setting the regular expression: {e}")
 
     def get_postfix(self):
         output = []
@@ -176,7 +178,7 @@ class ShuntingYard:
                     output.append(stack.pop())
 
                 if not stack:
-                    raise Exception("Invalid regular expression. Mismatched parentheses.")
+                    raise Exception(f"Invalid regular expression {self.tokens}. Mismatched parentheses.")
 
                 stack.pop()
             else:
@@ -184,6 +186,6 @@ class ShuntingYard:
 
         while stack:
             if stack[-1].type in ('OPEN_PAREN', 'CLOSE_PAREN'):
-                raise Exception("Invalid regular expression. Mismatched parentheses.")
+                raise Exception(f"Invalid regular expression {self.tokens}. Mismatched parentheses.")
             output.append(stack.pop())
         return output

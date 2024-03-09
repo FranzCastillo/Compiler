@@ -39,10 +39,25 @@ class FileParser:
         self.declarations_content, self.rules_content, self.code_content = split_file(file_content)
         self.identifiers = {}
         self.rules = {}  # {rule: {regex: return}}
-        self.process_rules(self.rules_content)
-        self.replace_identifiers()
-        self.replace_rules()
-        self.parse_rules()
+        try:
+            self.process_rules(self.rules_content)
+        except Exception as e:
+            raise Exception(f"Error processing the rules: {e}")
+
+        try:
+            self.replace_identifiers()
+        except Exception as e:
+            raise Exception(f"Identifier ('let') non-existent: {e}")
+
+        try:
+            self.replace_rules()
+        except Exception as e:
+            raise Exception(f"Rule non-existent: {e}")
+
+        try:
+            self.parse_rules()
+        except Exception as e:
+            raise Exception(f"Error parsing the rules: {e}")
 
     def process_rules(self, rules_content: str):
         """
@@ -113,15 +128,18 @@ class FileParser:
         """
         Parse the rules from a yalex syntax to the internal regex syntax.
         """
-        parser = RegexParser(self.identifiers)
-        new_rules = {}
-        for rule in self.rules:
-            new_rules[rule] = {}
-            for regex in self.rules[rule].keys():
-                # Since the keys are the regex, we need to parse them and create new keys
-                new_regex = parser.parse(regex)
-                new_rules[rule][new_regex] = self.rules[rule][regex]
-        self.rules = new_rules
+        try:
+            parser = RegexParser(self.identifiers)
+            new_rules = {}
+            for rule in self.rules:
+                new_rules[rule] = {}
+                for regex in self.rules[rule].keys():
+                    # Since the keys are the regex, we need to parse them and create new keys
+                    new_regex = parser.parse(regex)
+                    new_rules[rule][new_regex] = self.rules[rule][regex]
+            self.rules = new_rules
+        except Exception as e:
+            raise Exception(f"Can't parse regex {regex}: {e}")
 
     def get_full_regex(self):
         full_regex = f''
