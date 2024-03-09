@@ -68,7 +68,6 @@ class RegexParser:
                         j += 1
                     new_set = get_all_chars_set() - set_to_remove
                     stack.append(f"({UNION.join(new_set)})")
-
             elif char == '"':  # Set of chars
                 string_content = ''
                 i += 1
@@ -93,6 +92,34 @@ class RegexParser:
                 i += 1
             elif char == '_':  # Any character
                 stack.append(f"({UNION.join(ALL_CHARS)})")
+            elif char == '#':  # Diff set
+                first_set_str = stack.pop()
+                if not (first_set_str[0] == '[' and first_set_str[2] == "-"):
+                    raise Exception("Syntax Error. Missing first set in #")
+                if not (regex[i + 1] == '[' and regex[i + 2] == "'" and regex[i + 5] == '-'):
+                    raise Exception("Syntax Error. Missing second set in #")
+
+                # Convert to set
+                first_set = set()
+                j = 0
+                while j < len(first_set_str):
+                    if first_set_str[j] == '-':
+                        first_set.update(create_set(first_set_str[j - 1], first_set_str[j + 1]))
+                    j += 1
+
+                i += 2  # Skip ['
+                string_content = ''
+                while regex[i] != ']':
+                    string_content += regex[i] if regex[i] != "'" else ''  # Skip ' and -
+                    i += 1
+                second_set = set()
+                j = 0
+                while j < len(string_content):
+                    if string_content[j] == '-':
+                        second_set.update(create_set(string_content[j - 1], string_content[j + 1]))
+                    j += 1
+                new_set = first_set - second_set
+                stack.append(f"({UNION.join(new_set)})")
             else:
                 stack.append(char)
             i += 1

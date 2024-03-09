@@ -9,19 +9,11 @@ let numbers = ['0'-'9']
 let hello = "Hello World!"
 
 rule gettoken =
-['0'-'9']+ { return int(lxm) }
-| '+' { return PLUS }
-| '-' { return MINUS }
-| '*' { return TIMES }
-| '/' { return DIV }
-| '(' { return LPAREN }
-| ')' { return RPAREN }
-| eof { raise( 'Fin de buffer' )}
-
-rule getidentifier =
-['a'-'z']+ { return ID }
+['a'-'z''0'-'9']#['0'-'5'] {}
 %%
 print("Adios")
+
+
 
 
 
