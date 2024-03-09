@@ -12,48 +12,51 @@ def replace_postfix(postfix):
     """
     Replaces x? with xε| and x+ with xx*.
     """
-    stack = []
-    for token in postfix:
-        if token.value in unary_operators:
-            right = stack.pop()
-            if token.value == QUESTION_MARK:
+    try:
+        stack = []
+        for token in postfix:
+            if token.value in unary_operators:
+                right = stack.pop()
+                if token.value == QUESTION_MARK:
+                    temp = []
+                    for inside_token in right:
+                        temp.append(inside_token)
+                    temp.append(SyToken('CHAR', EPSILON))
+                    temp.append(SyToken('OP', UNION))
+                    stack.append(temp)
+                elif token.value == KLEENE_PLUS:
+                    # stack.append([right, right, KLEENE_STAR, CONCAT])
+                    temp = []
+                    for inside_token in right:
+                        temp.append(inside_token)
+                    for inside_token in right:
+                        temp.append(inside_token)
+                    temp.append(SyToken('OP', KLEENE_STAR))
+                    temp.append(SyToken('OP', CONCAT))
+                    stack.append(temp)
+                else:
+                    # stack.append([right, token.value])
+                    temp = []
+                    for inside_token in right:
+                        temp.append(inside_token)
+                    temp.append(token)
+                    stack.append(temp)
+            elif token.value in operators:
+                right = stack.pop()
+                left = stack.pop()
+                # stack.append([left, right, token])
                 temp = []
-                for inside_token in right:
+                for inside_token in left:
                     temp.append(inside_token)
-                temp.append(SyToken('CHAR', EPSILON))
-                temp.append(SyToken('OP', UNION))
-                stack.append(temp)
-            elif token.value == KLEENE_PLUS:
-                # stack.append([right, right, KLEENE_STAR, CONCAT])
-                temp = []
-                for inside_token in right:
-                    temp.append(inside_token)
-                for inside_token in right:
-                    temp.append(inside_token)
-                temp.append(SyToken('OP', KLEENE_STAR))
-                temp.append(SyToken('OP', CONCAT))
-                stack.append(temp)
-            else:
-                # stack.append([right, token.value])
-                temp = []
                 for inside_token in right:
                     temp.append(inside_token)
                 temp.append(token)
                 stack.append(temp)
-        elif token.value in operators:
-            right = stack.pop()
-            left = stack.pop()
-            # stack.append([left, right, token])
-            temp = []
-            for inside_token in left:
-                temp.append(inside_token)
-            for inside_token in right:
-                temp.append(inside_token)
-            temp.append(token)
-            stack.append(temp)
-        else:
-            stack.append([token])
-    return stack[0]
+            else:
+                stack.append([token])
+        return stack[0]
+    except Exception:
+        raise Exception(f"Syntax Error. Can't parse: {postfix}")
 
 
 class Controller:

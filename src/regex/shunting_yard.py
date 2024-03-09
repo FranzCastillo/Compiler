@@ -169,7 +169,10 @@ class ShuntingYard:
                          (associativity[token.value] == 'right' and precedence[token.value] < precedence[
                              stack[-1]].value))
                 ):
-                    output.append(stack.pop())
+                    try:
+                        output.append(stack.pop())
+                    except Exception:
+                        raise Exception(f"Invalid regular expression {self.tokens}. Mismatched operator.")
                 stack.append(token)
             elif token.type == 'OPEN_PAREN':
                 stack.append(token)
@@ -180,12 +183,18 @@ class ShuntingYard:
                 if not stack:
                     raise Exception(f"Invalid regular expression {self.tokens}. Mismatched parentheses.")
 
-                stack.pop()
+                try:
+                    stack.pop()
+                except Exception:
+                    raise Exception(f"Invalid regular expression {self.tokens}")
             else:
                 output.append(token)
 
         while stack:
             if stack[-1].type in ('OPEN_PAREN', 'CLOSE_PAREN'):
                 raise Exception(f"Invalid regular expression {self.tokens}. Mismatched parentheses.")
-            output.append(stack.pop())
+            try:
+                output.append(stack.pop())
+            except Exception:
+                raise Exception(f"Invalid regular expression {self.tokens}. Mismatched operator.")
         return output
