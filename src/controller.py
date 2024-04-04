@@ -79,10 +79,6 @@ class Controller:
         self.tree_viewer = ViewTree()
 
     def run_file(self, print_console: callable, content: str):
-        """
-        TODO:
-        - Handle #, _ [^] and escape characters
-        """
         try:
             file_parser = FileParser(content)
             rules = file_parser.rules

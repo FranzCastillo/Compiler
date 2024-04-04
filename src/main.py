@@ -6,6 +6,7 @@ def __main__():
     controller = Controller()
     editor = TextEditor(controller)
     editor.run()
+    # The text editor will call the controller's run_file method when the user clicks on the 'Run' button.
 
 
 if __name__ == "__main__":
