@@ -4,7 +4,7 @@ from src.regex.shunting_yard import ShuntingYard
 from src.regex.sy_tokens import SyToken
 from src.view.automaton import ViewAutomaton
 from src.view.tree import ViewTree
-from src.view.yalex_result import YalexResult
+from src.yalex.yalex_result import YalexResult
 from src.yalex.file_parser import FileParser
 
 
