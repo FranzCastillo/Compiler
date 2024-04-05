@@ -1,3 +1,5 @@
+import json
+
 class Grammar:
     def __init__(self, states, alphabet, start, accepting_states, transitions):
         self.states = states
@@ -72,3 +74,19 @@ class Grammar:
             step += f"{current_states}\n"
             simulation += step
         return simulation
+
+    def to_json(self):
+        grammar_json = {
+            "states": [state.value for state in self.states],
+            "alphabet": [char for char in self.alphabet],
+            "start": self.start.value,
+            "accepting_states": [state.value for state in self.accepting_states],
+            "transitions": {}
+        }
+
+        for state in self.transitions:
+            grammar_json["transitions"][state.value] = {}
+            for char in self.transitions[state]:
+                grammar_json["transitions"][state.value][char] = self.transitions[state][char].pop().value
+
+        return json.dumps(grammar_json)

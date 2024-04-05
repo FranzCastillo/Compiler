@@ -62,21 +62,8 @@ def replace_postfix(postfix):
 class Controller:
     def __init__(self, regex=None):
         self.regex = regex
-        self.postfix = None
-        self.nfa_grammar = None
-        self.dfa_grammar = None
-        self.min_dfa_grammar = None
         self.direct_dfa = None
         self.direct_dfa_grammar = None
-        self.min_direct_dfa_grammar = None
-
-        # Flag to check if the grammars have been processed.
-        # Allowing the grammars to be viewed only after they have been processed. (When they are not None)
-        self.grammars_processed = False
-
-        # Object to create the PDFs of the automata
-        self.automaton_viewer = ViewAutomaton()
-        self.tree_viewer = ViewTree()
 
     def run_file(self, print_console: callable, content: str):
         try:
@@ -92,8 +79,11 @@ class Controller:
                         "return": rules[rule][regex]
                     })
 
-            yalex_result = YalexResult(grammars, print_console)
-            yalex_result.view()
+            # Get all the jsons for the grammars
+            jsons = []
+            for rule in grammars:
+                for grammar in grammars[rule]:
+                    jsons.append(grammar["grammar"].to_json())
 
         except Exception as e:
             print_console(f"Error: {e}")
