@@ -7,6 +7,8 @@ from src.view.tree import ViewTree
 from src.view.yalex_result import YalexResult
 from src.yalex.file_parser import FileParser
 
+import json
+import os
 
 def replace_postfix(postfix):
     """
@@ -59,6 +61,26 @@ def replace_postfix(postfix):
         raise Exception(f"Syntax Error. Can't parse: {postfix}")
 
 
+def create_lexical_analyzer(automatons: dict) -> None:
+    """
+    Create the lexical analyzer with the given automatons.
+    :param automatons: {rule: [{grammar: Grammar, return: ""] }
+    """
+    # Create the folder for the lexical analyzer
+    try:
+        # If the doesn't exist, create it
+        lex_path = "output/lex_analyzer"
+        os.makedirs(lex_path, exist_ok=True)
+
+        # Append the automatons to the lexical analyzer
+        for rule in automatons:
+            with open(f"{lex_path}/{rule}_automaton.json", "w") as file:
+                json.dump(automatons[rule], file, indent=4)
+
+    except Exception as e:
+        raise Exception(f"Error creating the lexical analyzer: {e}")
+
+
 class Controller:
     def __init__(self, regex=None):
         self.regex = regex
@@ -69,21 +91,17 @@ class Controller:
         try:
             file_parser = FileParser(content)
             rules = file_parser.rules
-            grammars = {}  # {rule: [{grammar: Grammar, return: ""] }
+            automatons = {}  # {rule: [{grammar: Grammar, return: ""] }
             for rule in rules:
-                grammars[rule] = []
+                automatons[rule] = []
                 for regex in rules[rule]:
                     self.set_regex(regex)
-                    grammars[rule].append({
-                        "grammar": self.direct_dfa_grammar,
+                    automatons[rule].append({
+                        "automaton": self.direct_dfa_grammar.to_json(),
                         "return": rules[rule][regex]
                     })
 
-            # Get all the jsons for the grammars
-            jsons = []
-            for rule in grammars:
-                for grammar in grammars[rule]:
-                    jsons.append(grammar["grammar"].to_json())
+            create_lexical_analyzer(automatons)
 
         except Exception as e:
             print_console(f"Error: {e}")
