@@ -10,6 +10,7 @@ from src.yalex.file_parser import FileParser
 import json
 import os
 
+
 def replace_postfix(postfix):
     """
     Replaces x? with xε| and x+ with xx*.
@@ -76,6 +77,23 @@ def create_lexical_analyzer(automatons: dict) -> None:
         for rule in automatons:
             with open(f"{lex_path}/{rule}_automaton.json", "w") as file:
                 json.dump(automatons[rule], file, indent=4)
+
+        # Create the lexical analyzer (lex_main.py)
+        with open("yalex/lex_analyzer_template.py", "r") as file:
+            template = file.read()
+            with open(f"{lex_path}/lex_main.py", "w") as lex_file:
+                # Import the automatons JSONs
+                rule_names = "["
+                jsons = "["
+                for rule in automatons:
+                    rule_names += f"'{rule}', "
+                    jsons += f"'{rule}_automaton.json', "
+                rule_names = rule_names[:-2] + "]"
+                jsons = jsons[:-2] + "]"
+
+                template = template.replace("# RULE NAMES", rule_names)
+                template = template.replace("# JSONS PATHS", jsons)
+                lex_file.write(template)
 
     except Exception as e:
         raise Exception(f"Error creating the lexical analyzer: {e}")

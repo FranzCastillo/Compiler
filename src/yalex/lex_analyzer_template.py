@@ -174,10 +174,44 @@ class Grammar:
             simulation += step
         return simulation
 
+
+def rebuild_automatons() -> dict:
+    """
+    Rebuild the automatons from the json files on the same directory.
+    Each JSON is an automaton for a specific rule.
+    """
+    jsons_paths = # JSONS PATHS
+
+    rule_names = # RULE NAMES
+
+    automatons = {}
+    for i in range(len(jsons_paths)):
+        # Load the JSON rule file
+        with open(jsons_paths[i], "r") as file:
+            automatons[rule_names[i]] = json.load(file)
+
+        # Transform the JSONs of the Automatons
+        new_automaton = []
+        for automaton in automatons[rule_names[i]]:
+            temp = {
+                'automaton': json.loads(automaton['automaton']),
+                'return': automaton['return']
+            }
+            new_automaton.append(temp)
+
+        automatons[rule_names[i]] = new_automaton
+
+    return automatons
+
+
 class Lexer:
-    """
-    TODO:
-    - Recreate the grammars from the jsons
-    """
     def __init__(self):
-        pass
+        self.automatons = rebuild_automatons()
+
+
+def lex_main():
+    lexer = Lexer()
+
+
+if __name__ == "__main__":
+    lex_main()
