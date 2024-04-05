@@ -1,5 +1,5 @@
 # This file was generated automatically by the YALex compiler
-# Do not modify this file directly
+# Do not modify this file directly unless you know what you are doing
 import json
 
 

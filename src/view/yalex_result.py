@@ -14,7 +14,7 @@ class YalexResult:
         self.dot.attr(rankdir='LR', size='8,5')
         self.dot.attr('node', shape='circle')
 
-    def view(self):
+    def view(self, output_path: str = 'output'):
         for rule in self.rules:
             # Reset visited set and dot object for each rule
             self.visited = set()
@@ -37,8 +37,8 @@ class YalexResult:
                 self.dot.edge('-1', str(grammar.start.value), label=Operator.EPSILON.symbol)
                 self._visualize(grammar.start)
 
-            self.dot.render(rule, format='pdf', cleanup=True, directory='output')
-            self.print_console(f"- Automaton saved on 'output/{rule}.pdf'")
+            self.dot.render(rule, format='pdf', cleanup=True, directory=output_path)
+            self.print_console(f"- Automaton saved on '{output_path}/{rule}.pdf'")
 
     def _visualize(self, state):
         if state in self.visited:

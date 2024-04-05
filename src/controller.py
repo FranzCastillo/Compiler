@@ -109,17 +109,28 @@ class Controller:
         try:
             file_parser = FileParser(content)
             rules = file_parser.rules
-            automatons = {}  # {rule: [{grammar: Grammar, return: ""] }
+            automatons_str = {}  # {rule: [{grammar: Grammar, return: ""] }
+            automatons_obj = {}
             for rule in rules:
-                automatons[rule] = []
+                automatons_str[rule] = []
+                automatons_obj[rule] = []
                 for regex in rules[rule]:
                     self.set_regex(regex)
-                    automatons[rule].append({
+                    automatons_str[rule].append({
                         "automaton": self.direct_dfa_grammar.to_json(),
                         "return": rules[rule][regex]
                     })
 
-            create_lexical_analyzer(automatons)
+                    self.set_regex(regex)
+                    automatons_obj[rule].append({
+                        "grammar": self.direct_dfa_grammar,
+                        "return": rules[rule][regex]
+                    })
+
+            yalex_result = YalexResult(automatons_obj, print_console)
+            yalex_result.view('output/lex_analyzer')
+
+            create_lexical_analyzer(automatons_str)
 
         except Exception as e:
             print_console(f"Error: {e}")
