@@ -204,9 +204,82 @@ def rebuild_automatons() -> dict:
     return automatons
 
 
+def rebuild_grammars(automatons: dict) -> dict:
+    grammars = {}
+
+    for rule in automatons:
+        grammars[rule] = []
+
+        # Build Grammars
+        for automaton in automatons[rule]:
+            automaton_json = automaton['automaton']
+
+            # Create a state for each state in the automaton
+            states = set()
+            alphabet = set()
+            start = None
+            accepting_states = set()
+            transitions = {}
+
+            # Add the alphabet
+            alphabet.add(char for char in automaton_json['alphabet'])
+
+            # Create the states objects
+            for state in automaton_json['states']:
+                is_accepting = state in automaton_json['accepting_states']
+                new_state = State(state, is_accepting)
+                states.add(new_state)
+                # Add it to start if it's the start state
+                if state == automaton_json['start']:
+                    start = new_state
+
+                # Add it to accepting states if it's an accepting state
+                if is_accepting:
+                    accepting_states.add(new_state)
+
+            # Create the transitions
+            for transition in automaton_json['transitions']:
+                # Get the state obj in the set of states with the same value
+                current_state = None
+                for state in states:
+                    if state.get_value() == int(transition):
+                        current_state = state
+                        break
+
+                transitions[current_state] = {}
+
+                # Create the transition char -> state
+                for char in automaton_json['transitions'][transition]:
+                    next_state = None
+                    for state in states:
+                        if state.get_value() == int(automaton_json['transitions'][transition][char]):
+                            next_state = state
+                            break
+
+                    if char not in transitions[current_state]:
+                        transitions[current_state][char] = set()
+                    transitions[current_state][char].add(next_state)
+
+            temp = {
+                "grammar": Grammar(states, alphabet, start, accepting_states, transitions),
+                "return": automaton['return']
+            }
+            grammars[rule].append(temp)
+
+    return grammars
+
+    states = {}
+    for rule in automatons:
+        states[rule] = []
+        for automaton in automatons[rule]:
+            states[rule].append(automaton['automaton'])
+
+
 class Lexer:
     def __init__(self):
-        self.automatons = rebuild_automatons()
+        self.grammars = rebuild_grammars(
+            rebuild_automatons()
+        )
 
 
 def lex_main():
