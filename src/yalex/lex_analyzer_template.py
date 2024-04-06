@@ -1,6 +1,7 @@
 # This file was generated automatically by the YALex compiler
 # Do not modify this file directly unless you know what you are doing
 import json
+import argparse
 
 
 class State:
@@ -152,9 +153,9 @@ def rebuild_automatons() -> dict:
     Rebuild the automatons from the json files on the same directory.
     Each JSON is an automaton for a specific rule.
     """
-    jsons_paths =  # JSONS PATHS
+    jsons_paths = # JSONS PATHS
 
-    rule_names =  # RULE NAMES
+    rule_names = # RULE NAMES
 
     automatons = {}
     for i in range(len(jsons_paths)):
@@ -243,15 +244,25 @@ def rebuild_grammars(automatons: dict) -> dict:
 
 
 class Lexer:
-    def __init__(self):
+    def __init__(self, file_path: str):
+        file_path = file_path
         self.grammars = rebuild_grammars(
             rebuild_automatons()
         )
+        tokens = self.tokenize()
+
+    def tokenize(self) -> list:
+        pass
 
 
-def lex_main():
+def lex_main(file_path: str):
     lexer = Lexer()
 
 
 if __name__ == "__main__":
-    lex_main()
+    parser = argparse.ArgumentParser(description='Tokenize a file.')
+    parser.add_argument('file_path', type=str, help='The path to the file to process')
+
+    args = parser.parse_args()
+
+    lex_main(args.file_path)
