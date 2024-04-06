@@ -1,0 +1,10 @@
+function isEven(num)(
+    return num % 2 == 0;
+)
+
+function main()(
+    var toCheck = 14;
+    if(isEven(toCheck))(
+        print("EVEN")
+    )
+)
