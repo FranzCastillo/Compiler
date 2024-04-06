@@ -1,5 +1,8 @@
 # This file was generated automatically by the YALex compiler
 # Do not modify this file directly unless you know what you are doing
+
+# YALEX HEADER
+
 import json
 import argparse
 
@@ -247,8 +250,13 @@ def rebuild_grammars(automatons: dict) -> dict:
                             next_state = state
                             break
 
+                    # Remove the \ before the escaped characters
+                    if char[0] == "\\" and char[1] not in ['\\', 'n', 't']:
+                        char = char[1]
+
                     if char not in transitions[current_state]:
                         transitions[current_state][char] = set()
+
                     transitions[current_state][char].add(next_state)
 
             temp = {
@@ -370,3 +378,5 @@ if __name__ == "__main__":
 
     lex_main(args.file_path)
     # lex_main("D:\\UVG\\Compiladores\\Compiler\\other\\sample_code.txt")
+
+# YALEX FOOTER

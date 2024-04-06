@@ -62,7 +62,7 @@ def replace_postfix(postfix):
         raise Exception(f"Syntax Error. Can't parse: {postfix}")
 
 
-def create_lexical_analyzer(automatons: dict) -> None:
+def create_lexical_analyzer(header: str = "", automatons: dict = None, footer: str = "") -> None:
     """
     Create the lexical analyzer with the given automatons.
     :param automatons: {rule: [{grammar: Grammar, return: ""] }
@@ -82,6 +82,9 @@ def create_lexical_analyzer(automatons: dict) -> None:
         with open("yalex/lex_analyzer_template.py", "r") as file:
             template = file.read()
             with open(f"{lex_path}/lex_main.py", "w") as lex_file:
+                # Replace header and footer
+                template = template.replace("# YALEX HEADER", header)
+                template = template.replace("# YALEX FOOTER", footer)
                 # Import the automatons JSONs
                 rule_names = "["
                 jsons = "["
@@ -90,7 +93,6 @@ def create_lexical_analyzer(automatons: dict) -> None:
                     jsons += f"'{rule}_automaton.json', "
                 rule_names = rule_names[:-2] + "]"
                 jsons = jsons[:-2] + "]"
-
                 template = template.replace("# RULE NAMES", rule_names)
                 template = template.replace("# JSONS PATHS", jsons)
                 lex_file.write(template)
@@ -130,7 +132,9 @@ class Controller:
             yalex_result = YalexResult(automatons_obj, print_console)
             yalex_result.view('output/lex_analyzer')
 
-            create_lexical_analyzer(automatons_str)
+            header = file_parser.declarations_content
+            footer = file_parser.code_content
+            create_lexical_analyzer(header, automatons_str, footer)
 
         except Exception as e:
             print_console(f"Error: {e}")
