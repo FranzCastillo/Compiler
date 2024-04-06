@@ -111,67 +111,39 @@ class Grammar:
         current_states = {self.start}
         has_epsilon_transitions = self.transitions is not {}
         for char in string:
-            # If it's an NFA should have epsilon transitions and append the epsilon closure. If not, no states will
-            # be added
-            temp = set()
+            next_states = set()
             for state in current_states:
-                if state.epsilon_transitions:
-                    temp.update(state.get_epsilon_closure())
-                    has_epsilon_transitions = True
-            current_states.update(temp)
+                in_transitions = state in self.transitions
+                char_creates_transition = char in self.transitions[state]
+                if in_transitions and char_creates_transition:
+                    next_states.update(self.transitions[state][char])
 
-            if has_epsilon_transitions:
-                next_states = set()
-                for state in current_states:
-                    if char in state.transitions:
-                        next_closure = state.transitions[char]
-                        for temp_state in next_closure:
-                            next_states.update(temp_state.get_epsilon_closure())
+            # There's no next states, string not accepted
+            if not next_states:
+                break
 
-                current_states = next_states
-            else:
-                next_states = set()
-                for state in current_states:
-                    if state in self.transitions and char in self.transitions[state]:
-                        next_states.update(self.transitions[state][char])
-                current_states = next_states
+            current_states = next_states
 
         return bool(current_states.intersection(self.accepting_states))
 
     def simulate(self, string):
         current_states = {self.start}
-        has_epsilon_transitions = self.transitions is not {}
         simulation = ""
         for char in string:
-            step = ""
-            # If it's an NFA should have epsilon transitions and append the epsilon closure. If not, no states will
-            # be added
-            temp = set()
+            step = f"{current_states} -> {char} -> "
+            next_states = set()
             for state in current_states:
-                if state.epsilon_transitions:
-                    temp.update(state.get_epsilon_closure())
-                    has_epsilon_transitions = True
-            current_states.update(temp)
-
-            step += f"{current_states} -> {char} -> "
-            if has_epsilon_transitions:
-                next_states = set()
-                for state in current_states:
-                    if char in state.transitions:
-                        next_closure = state.transitions[char]
-                        for temp_state in next_closure:
-                            next_states.update(temp_state.get_epsilon_closure())
-
-                current_states = next_states
-            else:
-                next_states = set()
-                for state in current_states:
-                    if state in self.transitions and char in self.transitions[state]:
-                        next_states.update(self.transitions[state][char])
-                current_states = next_states
+                in_transitions = state in self.transitions
+                char_creates_transition = char in self.transitions[state]
+                if in_transitions and char_creates_transition:
+                    next_states.update(self.transitions[state][char])
+            current_states = next_states
 
             step += f"{current_states}\n"
             simulation += step
+            if not current_states:
+                break
+
         return simulation
 
 
@@ -180,9 +152,9 @@ def rebuild_automatons() -> dict:
     Rebuild the automatons from the json files on the same directory.
     Each JSON is an automaton for a specific rule.
     """
-    jsons_paths = # JSONS PATHS
+    jsons_paths =  # JSONS PATHS
 
-    rule_names = # RULE NAMES
+    rule_names =  # RULE NAMES
 
     automatons = {}
     for i in range(len(jsons_paths)):
@@ -222,7 +194,8 @@ def rebuild_grammars(automatons: dict) -> dict:
             transitions = {}
 
             # Add the alphabet
-            alphabet.add(char for char in automaton_json['alphabet'])
+            for char in automaton_json['alphabet']:
+                alphabet.add(char)
 
             # Create the states objects
             for state in automaton_json['states']:
@@ -267,12 +240,6 @@ def rebuild_grammars(automatons: dict) -> dict:
             grammars[rule].append(temp)
 
     return grammars
-
-    states = {}
-    for rule in automatons:
-        states[rule] = []
-        for automaton in automatons[rule]:
-            states[rule].append(automaton['automaton'])
 
 
 class Lexer:
