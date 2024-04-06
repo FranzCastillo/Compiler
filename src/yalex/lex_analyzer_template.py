@@ -353,16 +353,19 @@ class Lexer:
                         "lexeme": current_lexeme,
                         "type": "ERROR"
                     }
-                print(
-                    f"{new_token_dict['line']}:{new_token_dict['pos']} → {new_token_dict['lexeme']} : {new_token_dict['type']}")
                 tokens_dicts.append(new_token_dict)
 
                 # Update index
                 start_index = end_index
                 end_index += 1
 
+        # TODO: The Token OBJs have not been created yet. For now, they are just dictionaries.
+        #  Create the Token objects and return them
+        #  Execute the code detected
         for token_dict in tokens_dicts:
-            print(f"{token_dict["line"]}:{token_dict["pos"]} → '{token_dict["lexeme"]}' : {token_dict["type"]}")
+            print(
+                f"{token_dict['line']:02}:{token_dict['pos']:02} → {token_dict['type']} [{token_dict['lexeme']}]"
+            )
         return tokens_dicts
 
 
