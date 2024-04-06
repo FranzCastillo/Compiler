@@ -380,6 +380,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     lex_main(args.file_path)
-    # lex_main("D:\\UVG\\Compiladores\\Compiler\\other\\sample_code.txt")
+    # lex_main("D:\\UVG\\Compiladores\\Compiler\\other\\CODE_Easy_Script.txt")
 
 # YALEX FOOTER
