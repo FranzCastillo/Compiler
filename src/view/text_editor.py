@@ -36,13 +36,14 @@ class TextEditor:
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.root.quit)
         # Run Option
-        self.menu.add_command(label="Run", command=self.run_file)
+        self.menu.add_command(label="Run YAL", command=self.run_yal_file)
+        self.menu.add_command(label="Run YALP", command=self.run_yal_file)
 
         self.bind_update_line_numbers()
 
         self.root.bind_all('<Control-s>', self.save_file)  # Ctrl + S to save a file
         self.root.bind_all('<Control-o>', self.open_file)  # Ctrl + O to open a file
-        self.root.bind_all('<Control-r>', self.run_file)  # Ctrl + R to run the program
+        self.root.bind_all('<Control-r>', self.run_yalp_file)  # Ctrl + R to run the program
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.current_file = None  # To keep track of the current file
 
@@ -77,7 +78,11 @@ class TextEditor:
                 # If no file is currently open, open the save file dialog
                 file_path = filedialog.asksaveasfilename(
                     defaultextension=".yal",
-                    filetypes=[("YAL files", "*.yal"), ("All files", "*.*")]
+                    filetypes=[
+                        ("YAL files", "*.yal"),
+                        ("YALParser files", "*.yalp"),
+                        ("All files", "*.*")
+                    ]
                 )
                 with open(file_path, 'w') as file:
                     content = self.text.get(1.0, tk.END)
@@ -88,12 +93,21 @@ class TextEditor:
         except FileNotFoundError:
             pass
 
-    def run_file(self, event=None):
+    def run_yal_file(self, event=None):
         try:
             content = self.text.get(1.0, tk.END)
             self.print_console("Running file...")
 
-            self.controller.run_file(self.print_console, content)
+            self.controller.run_yal_file(self.print_console, content)
+        except Exception as e:
+            self.print_console(f"Error: {e}")
+
+    def run_yalp_file(self, event=None):
+        try:
+            content = self.text.get(1.0, tk.END)
+            self.print_console("Running file...")
+
+            self.controller.run_yalp_file(self.print_console, content)
         except Exception as e:
             self.print_console(f"Error: {e}")
 

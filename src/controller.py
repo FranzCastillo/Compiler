@@ -107,7 +107,7 @@ class Controller:
         self.direct_dfa = None
         self.direct_dfa_grammar = None
 
-    def run_file(self, print_console: callable, content: str):
+    def run_yal_file(self, print_console: callable, content: str):
         try:
             file_parser = FileParser(content)
             rules = file_parser.rules
@@ -138,6 +138,9 @@ class Controller:
 
         except Exception as e:
             print_console(f"Error: {e}")
+
+    def run_yalp_file(self, print_console: callable, content: str):
+        pass
 
     def set_regex(self, regex):
         self.regex = regex

@@ -1,0 +1,58 @@
+print("Hola desde el header! [HARD]")
+%%
+(* Declaraci n de Variables *)
+
+let delim = [' ''\t''\n']				(* Delimitan con espacios, tabs, enters *)
+let lower = ['a'-'z']
+let upper = ['A'-'Z']
+let letters = ['a'-'z''A'-'Z']
+let all = ['a'-'z''A'-'Z''0'-'9']
+
+let digit = ['0'-'9']
+let digits = digit+
+
+let integer = digits
+let id = lower(('_')?.(letters|digits)*)*
+let float = digits.(('.'.digits)?.('E'['+''-']?.digits)?)?
+
+(* todas las reglas *)
+rule codeHard =
+	delim+		{ DELIM }
+|	"return"		{ RETURN }
+|	"while"		{ WHILE }
+|	"for"		{ FOR }
+|	id		{ ID2 }
+|	"if"		{ IF }
+|	"True"		{ BOOL_T }
+|	"False"		{ BOOL_F }
+|	"else"		{ ELSE }
+|	"var"		{ NEW_VAR }
+|	"function"		{ NEW_FUNC }
+|	"print"		{ PRINT }
+|	'"'		{ QUOTE }
+|	integer   		{ INTEGER }
+|	float		{ FLOAT }
+|	'+'		{ SUM }
+|	'-'		{ SUB }
+|	'*'		{ TIMES }
+|	'/'		{ DIV }
+|	'='		{ ASSIGN }
+|	'%'		{ MOD }
+|	"=="		{ EQ }
+|	"!="		{ DIFF }
+|	"&&"		{ AND }
+|	"||"		{ OR }
+|	'<'		{ LT }
+|	'>'		{ GT }
+|	"<="		{ LTEQ }
+|	">="		{ GTEQ }
+|	'('		{ OPEN_PAREN }
+|	')'		{ CLOSE_PAREN }
+|	';'		{ END }
+%%
+(* Introducir cualquier trailer aqui *)
+print("That's all folks! [HARD]")
+
+
+
+

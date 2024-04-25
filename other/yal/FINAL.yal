@@ -1,0 +1,56 @@
+import numpy as np
+%%
+(* Declaración de Variables *)
+
+let delim = [' ''\t''\n']				(* Delimitan con espacios, tabs, enters *)
+let ws = delim+				(* Múltiples delims concatenados *)
+
+let letter = ['a'-'z']
+let letters = ['a'-'z''A'-'Z']
+
+let digit = ['0'-'9']
+let digits = digit+
+
+let id = letter(letter|digit)*
+let number = digits.('.'.digits)?.('E'['+''-']?.digits)?
+let gmail_domain = "@gmail.com"
+let yahoo_domain = "@yahoo.com"
+let email = id.(gmail_domain|yahoo_domain)
+
+(* todas las reglas *)
+rule low_complexity =
+	'a'				{ 'regular-char' }
+|	'\n'				{ 'enter' }
+|	"abc".d?.'_'._.'_'				{ 'any simbol' }
+|	gmail_domain				{ 'string-character' 
+|	['a''\t''b'"cde"]				{ 'simple char-set }
+|	letters				{ 'char-range' }
+(*
+|	['a'-'z''A'-'Z''0'-'9']				{ 'full-range' }
+*)
+|	["st'ring"]				{ 'char-union' }
+|	[^'d'-'z''A'-'Z''0'-'8']				{ '^character-set' }
+|	['0'-'9']#['0'-'5']				{ 'diff-set }
+|	("hola")*				{ 'kleene-closure' }
+|	("adios")+				{ 'positive-closure' }
+|	"todo"(s acá)?				{ 'optional' + 'concatenation' }
+
+rule medium_complexity =
+	id		{ 'id' }
+|	number		{ 'number' }
+|	email		{ 'email' }
+
+let generic_email = id@id'.'.["com""net""org""edu""gov""info""ong"]
+let hex_digit = ['0'-'9''a'-'f''A'-'F']
+let hex_number = "0x".(hex_digit)+
+let url = "http://www.".id+'.'.["com""net""org"]
+
+rule high_complexity =
+	generic_email			{ 'generic_email' }
+|	hex_number			{ 'hex' }
+|	url			{ 'url' }
+|	(a+|b)+b?			{ 'hard_1' }
+|	(aa*)|c*|a+			{ 'hard_2' }
+%%
+(* Introducir cualquier trailer aqui *)
+print("That's all folks!")

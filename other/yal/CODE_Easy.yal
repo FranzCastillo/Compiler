@@ -1,0 +1,32 @@
+print("Hola desde el header! [EASY]")
+%%
+(* Declaraci�n de Variables *)
+
+let delim = [' ''\t''\n']				(* Delimitan con espacios, tabs, enters *)
+let lower = ['a'-'z']
+let upper = ['A'-'Z']
+let letters = ['a'-'z''A'-'Z']
+
+let digit = ['0'-'5']
+let digits = digit+
+
+(* todas las reglas *)
+rule codeEasy =
+	lower+	{ LOWER }
+|	upper+	{ UPPER }
+|	letters+	{ LETTERS }
+|	digit	{ DIGIT }
+|	digits+	{ DIGITS }
+|	delim	{ DELIM }
+
+%%
+(* Introducir cualquier trailer aqui *)
+print("That's all folks! [EASY]")
+
+
+
+
+
+
+
+
