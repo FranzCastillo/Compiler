@@ -1,6 +1,7 @@
 import argparse
 
 from src.yalex.lex_analyzer_factory import create_lex_analyzer
+from src.yapar.file_parser import FileParser
 
 
 def parse_args():
@@ -17,13 +18,14 @@ def main():
     # yalp_path = args.yalp_path
     # yalex_path = args.yalex_path
     # output_path = args.output_path
-    yalp_path = ""
+    yalp_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\Sintac.yalp"
     yalex_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yal\\CODE_Hard.yal"
     output_path = "D:\\UVG\\Compiladores\\Compiler\\other\\output"
 
     # Process the YALex File
     try:
         create_lex_analyzer(yalex_path, output_path)
+        yapar_file = FileParser(yalp_path)
     except Exception as e:
         print(f"Error processing the YALex file: {e}")
         return
