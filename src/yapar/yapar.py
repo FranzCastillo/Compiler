@@ -24,7 +24,7 @@ def main():
 
     # Process the YALex File
     try:
-        create_lex_analyzer(yalex_path, output_path)
+        # create_lex_analyzer(yalex_path, output_path)
         yapar_file = FileParser(yalp_path)
     except Exception as e:
         print(f"Error processing the YALex file: {e}")
