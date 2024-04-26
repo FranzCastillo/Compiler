@@ -269,12 +269,14 @@ def rebuild_grammars(automatons: dict) -> dict:
 
 
 class Token:
-    def __init__(self, token_type: str, value: str):
-        self.token_type = token_type
-        self.value = value
+    def __init__(self, line: int, pos: int, lexeme: str, type: str):
+        self.line = line
+        self.pos = pos
+        self.lexeme = lexeme
+        self.type = type
 
     def __str__(self):
-        return f"{self.token_type}: {self.value}"
+        return f"{self.line:02}:{self.pos:02} → {self.type} [{self.lexeme}]"
 
 
 class SymbolTable:
@@ -292,10 +294,6 @@ class Lexer:
         self.symbol_table = SymbolTable()
 
     def tokenize(self) -> list:
-        """
-        TODO:
-            - Note that escaped characters are preceded by a backslash. Modify the automaton creation to avoid this
-        """
         content = ""
         with open(self.file_path, "r") as file:
             content = file.read()
@@ -309,7 +307,7 @@ class Lexer:
                 all_valid_grammars.append(automaton)
 
         lines = content.split("\n")
-        tokens_dicts = []
+        tokens = []
         for num_line in range(len(lines)):
             line = lines[num_line]
             start_index = 0
@@ -340,46 +338,28 @@ class Lexer:
                         break
 
                 if accepted_grammar:
-                    new_token_dict = {
-                        "line": num_line,
-                        "pos": start_index,
-                        "lexeme": current_lexeme,
-                        "type": accepted_grammar['return']
-                    }
+                    new_token = Token(
+                        num_line,
+                        start_index,
+                        current_lexeme,
+                        accepted_grammar['return']
+                    )
                 else:  # Error
-                    new_token_dict = {
-                        "line": num_line,
-                        "pos": start_index,
-                        "lexeme": current_lexeme,
-                        "type": "ERROR"
-                    }
-                tokens_dicts.append(new_token_dict)
+                    new_token = Token(
+                        num_line,
+                        start_index,
+                        current_lexeme,
+                        "ERROR"
+                    )
+                tokens.append(new_token)
 
                 # Update index
                 start_index = end_index
                 end_index += 1
 
-        # TODO: The Token OBJs have not been created yet. For now, they are just dictionaries.
-        #  Create the Token objects and return them
-        #  Execute the code detected
-        for token_dict in tokens_dicts:
-            print(
-                f"{token_dict['line']:02}:{token_dict['pos']:02} → {token_dict['type']} [{token_dict['lexeme']}]"
-            )
-        return tokens_dicts
+        return tokens
 
-
-def lex_main(file_path: str):
-    lexer = Lexer(file_path)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Tokenize a file.')
-    parser.add_argument('file_path', type=str, help='The path to the file to process')
-
-    args = parser.parse_args()
-
-    lex_main(args.file_path)
-    # lex_main("D:\\UVG\\Compiladores\\Compiler\\other\\CODE_Easy_Script.txt")
+    def get_next_token(self) -> Token:
+        return self.tokens.pop(0)
 
 # YALEX FOOTER

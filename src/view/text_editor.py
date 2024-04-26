@@ -37,13 +37,13 @@ class TextEditor:
         self.file_menu.add_command(label="Exit", command=self.root.quit)
         # Run Option
         self.menu.add_command(label="Run YAL", command=self.run_yal_file)
-        self.menu.add_command(label="Run YALP", command=self.run_yal_file)
+        self.menu.add_command(label="Run YALP", command=self.run_yalp_file)
 
         self.bind_update_line_numbers()
 
         self.root.bind_all('<Control-s>', self.save_file)  # Ctrl + S to save a file
         self.root.bind_all('<Control-o>', self.open_file)  # Ctrl + O to open a file
-        self.root.bind_all('<Control-r>', self.run_yalp_file)  # Ctrl + R to run the program
+        self.root.bind_all('<Control-r>', self.run_yal_file)  # Ctrl + R to run the program
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.current_file = None  # To keep track of the current file
 
@@ -95,10 +95,17 @@ class TextEditor:
 
     def run_yal_file(self, event=None):
         try:
-            content = self.text.get(1.0, tk.END)
+            # Save the file
+            self.save_file()
+
+            # Get the path
+            path = self.current_file
+
             self.print_console("Running file...")
 
-            self.controller.run_yal_file(self.print_console, content)
+            self.controller.run_yal_file(self.print_console, path)
+
+            self.print_console("Lexical Analyzer created successfully!")
         except Exception as e:
             self.print_console(f"Error: {e}")
 
