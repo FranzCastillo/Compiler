@@ -1,3 +1,4 @@
+from src.structures.token import Token
 def remove_comments(file_content: str) -> str:
     """
     Return the content of the file as a string (Except the comments)
@@ -37,6 +38,10 @@ def split_file(file_content: str) -> tuple:
     return tokens_content.strip(), productions_content.strip()
 
 
+def process_token_section(token_section: str) -> dict:
+    pass
+
+
 class FileParser:
     def __init__(self, file_path: str):
         try:
@@ -45,11 +50,7 @@ class FileParser:
                 content = file.read()
 
             # Split the file into tokens and productions
-            self.tokens_section, self.productions_section = split_file(content)
-            print(self.tokens_section)
-            print("================")
-            print(self.productions_section)
-
-
+            tokens_section, productions_section = split_file(content)
+            self.tokens = process_token_section(tokens_section)
         except Exception as e:
             raise Exception(f"Error processing the YAPar file: {e}")

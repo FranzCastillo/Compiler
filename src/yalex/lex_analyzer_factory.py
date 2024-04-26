@@ -150,9 +150,16 @@ def create_lex_file(header: str = "", automatons: dict = None, footer: str = "",
         raise Exception(f"Error creating the lexical analyzer: {e}")
 
 
+def copy_token_file(output_path: str) -> None:
+    with open("../structures/token.py", "r") as file:
+        with open(f"{output_path}/comp_token.py", "w") as token_file:
+            token_file.write(file.read())
+
+
 def create_lex_analyzer(yal_path: str, output_path: str) -> None:
     try:
         header, automatons_str, footer = parse_file(yal_path)
+        copy_token_file(output_path)
         create_lex_file(header, automatons_str, footer, output_path)
 
     except Exception as e:

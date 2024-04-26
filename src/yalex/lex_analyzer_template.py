@@ -4,7 +4,8 @@
 # YALEX HEADER
 
 import json
-import argparse
+
+from comp_token import Token
 
 
 class State:
@@ -173,9 +174,9 @@ def rebuild_automatons() -> dict:
     Rebuild the automatons from the json files on the same directory.
     Each JSON is an automaton for a specific rule.
     """
-    jsons_paths = # JSONS PATHS
+    jsons_paths =  # JSONS PATHS
 
-    rule_names = # RULE NAMES
+    rule_names =  # RULE NAMES
 
     automatons = {}
     for i in range(len(jsons_paths)):
@@ -268,17 +269,6 @@ def rebuild_grammars(automatons: dict) -> dict:
     return grammars
 
 
-class Token:
-    def __init__(self, line: int, pos: int, lexeme: str, type: str):
-        self.line = line
-        self.pos = pos
-        self.lexeme = lexeme
-        self.type = type
-
-    def __str__(self):
-        return f"{self.line:02}:{self.pos:02} → {self.type} [{self.lexeme}]"
-
-
 class SymbolTable:
     def __init__(self):
         self.table = {}
@@ -361,5 +351,11 @@ class Lexer:
 
     def get_next_token(self) -> Token:
         return self.tokens.pop(0)
+
+    def next_token(self) -> Token:
+        return self.tokens[0]
+
+    def has_next_token(self) -> bool:
+        return bool(self.tokens)
 
 # YALEX FOOTER
