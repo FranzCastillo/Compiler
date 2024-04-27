@@ -43,6 +43,7 @@ def main():
         #     return
 
         slr = SLR(tokens, ignored_tokens, productions)
+        temp = slr.closure(slr.initial_set)
         print("END")
 
     except Exception as e:
