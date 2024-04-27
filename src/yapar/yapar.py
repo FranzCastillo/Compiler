@@ -37,13 +37,13 @@ def main():
         tokens = yapar_file.tokens
         ignored_tokens = yapar_file.ignored_tokens
         productions = yapar_file.productions
-        start_symbol = list(productions.keys())[0]
 
-        if not are_tokens_valid(token_types, tokens):
-            print("The tokens in the YALex file don't match the tokens in the YALp file")
-            return
+        # if not are_tokens_valid(token_types, tokens):
+        #     print("The tokens in the YALex file don't match the tokens in the YALp file")
+        #     return
 
-        slr = SLR(tokens, ignored_tokens, productions, start_symbol)
+        slr = SLR(tokens, ignored_tokens, productions)
+        print("END")
 
     except Exception as e:
         print(f"Error processing the YALex file: {e}")
