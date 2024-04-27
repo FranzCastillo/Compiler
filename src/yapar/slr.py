@@ -1,6 +1,6 @@
+from src.regex.state_id import StateId
 from src.yapar.lr_set import LrSet
 from src.yapar.lr_symbol import LrSymbol
-from src.regex.state_id import StateId
 
 
 def parse_productions(tokens: list[str], productions: dict) -> dict:
@@ -90,7 +90,7 @@ class SLR:
 
         return set_prods
 
-    def goto(self, lr_set: LrSet, symbol: LrSymbol) -> LrSet:
+    def goto(self, lr_set: LrSet, lr_symbol: LrSymbol) -> LrSet:
         """
         Compute the go-to set of a symbol
         """
@@ -105,6 +105,18 @@ class SLR:
                         dot_pos = i
                         break
 
-                if dot_pos == -1:
-                    continue
+                if prod[dot_pos + 1] == lr_symbol:
+                    temp_prod = prod.copy()
+                    temp_prod[dot_pos] = lr_symbol
+                    temp_prod[dot_pos + 1] = LrSymbol(".", is_dot=True)
+
+                    if head not in new_set_prods:
+                        new_set_prods[head] = []
+
+                    new_set_prods[head].append(temp_prod)
+
+        return LrSet(
+            set_id=self.id_giver.get_id(),
+            heart_prods=new_set_prods,
+        )
 

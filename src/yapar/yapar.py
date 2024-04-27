@@ -44,7 +44,8 @@ def main():
         #     return
 
         slr = SLR(tokens, ignored_tokens, productions)
-        temp = slr.goto(slr.initial_set, LrSymbol("E"))
+        temp = slr.goto(slr.initial_set, LrSymbol("LPAREN", is_terminal=True))
+        temp2 = slr.closure(temp)
         print("END")
 
     except Exception as e:
