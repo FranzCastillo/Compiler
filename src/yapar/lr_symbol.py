@@ -5,7 +5,7 @@ class LrSymbol:
         self.is_dot = is_dot
 
     def __str__(self):
-        return f"{self.symbol}{'.' if self.is_dot else ''}"
+        return f"{self.symbol}"
 
     def __eq__(self, other):
         return self.symbol == other.symbol

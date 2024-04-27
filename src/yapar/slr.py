@@ -1,3 +1,4 @@
+from src.yapar.lr_set import LrSet
 from src.yapar.lr_symbol import LrSymbol
 
 
@@ -35,4 +36,8 @@ class SLR:
         self.ignored_tokens = ignored_tokens
         temp_productions = parse_productions(self.tokens, productions)
         self.start_symbol, self.productions = augment_productions(temp_productions)
-        print("END")
+        self.productions[self.start_symbol].insert(0, LrSymbol(".", is_dot=True))
+        self.initial_set = LrSet(
+            heart_prods={self.start_symbol: self.productions[self.start_symbol]},
+            all_prods=self.productions,
+        )
