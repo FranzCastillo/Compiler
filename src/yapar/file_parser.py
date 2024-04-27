@@ -72,7 +72,7 @@ def process_token_section(token_section: str) -> tuple[set, set]:
     return tokens, ignored_tokens
 
 
-def process_prod_section(prod_section: str) -> dict:
+def process_prod_section(prod_section: str, tokens: set) -> dict:
     """
     Process the production section of the file
     """
@@ -93,7 +93,13 @@ def process_prod_section(prod_section: str) -> dict:
 
         productions[prod_head] = []
         for body in prod_body:
-            productions[prod_head].append(body.strip().split(" "))
+            temp = body.strip().split(" ")
+            if not temp:
+                raise Exception(f"Invalid production: {body}")
+            for item in temp:
+                if item.isupper() and item not in tokens:
+                    raise Exception(f"Token {item} not defined.")
+            productions[prod_head].append(temp)
 
     return productions
 
@@ -108,6 +114,6 @@ class FileParser:
             # Split the file into tokens and productions
             tokens_section, productions_section = split_file(content)
             self.tokens, self.ignored_tokens = process_token_section(tokens_section)
-            self.productions = process_prod_section(productions_section)
+            self.productions = process_prod_section(productions_section, self.tokens)
         except Exception as e:
             raise Exception(f"Error processing the YAPar file: {e}")
