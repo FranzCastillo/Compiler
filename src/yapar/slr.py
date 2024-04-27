@@ -1,5 +1,6 @@
 from src.yapar.lr_set import LrSet
 from src.yapar.lr_symbol import LrSymbol
+from src.regex.state_id import StateId
 
 
 def parse_productions(tokens: list[str], productions: dict) -> dict:
@@ -26,7 +27,7 @@ def augment_productions(productions: dict) -> tuple[LrSymbol, dict]:
         f"{old_start_symbol.symbol}'",
         is_terminal=False,
     )
-    productions[new_start_symbol] = [old_start_symbol]
+    productions[new_start_symbol] = [[LrSymbol(".", is_dot=True), old_start_symbol]]
     return new_start_symbol, productions
 
 
@@ -44,12 +45,13 @@ def find_pending_symbols(prod_body: list[LrSymbol]) -> set:
 
 class SLR:
     def __init__(self, tokens, ignored_tokens, productions):
+        self.id_giver = StateId()
         self.tokens = tokens
         self.ignored_tokens = ignored_tokens
         temp_productions = parse_productions(self.tokens, productions)
         self.start_symbol, self.productions = augment_productions(temp_productions)
-        self.productions[self.start_symbol].insert(0, LrSymbol(".", is_dot=True))
         self.initial_set = LrSet(
+            set_id=self.id_giver.get_id(),
             heart_prods={self.start_symbol: self.productions[self.start_symbol]},
         )
 
@@ -65,7 +67,8 @@ class SLR:
 
         pending_symbols = set()
         for head, body in lr_set.heart_prods.items():
-            pending_symbols |= find_pending_symbols(body)
+            for prod in body:
+                pending_symbols |= find_pending_symbols(prod)
 
         checked_symbols = set()
 
@@ -86,3 +89,22 @@ class SLR:
                 pending_symbols |= find_pending_symbols(temp_prod)
 
         return set_prods
+
+    def goto(self, lr_set: LrSet, symbol: LrSymbol) -> LrSet:
+        """
+        Compute the go-to set of a symbol
+        """
+        new_set_prods = {}
+
+        current_set_prods = self.closure(lr_set)
+        for head, body in current_set_prods.items():
+            for prod in body:
+                dot_pos = -1
+                for i, symbol in enumerate(prod):
+                    if symbol.is_dot:
+                        dot_pos = i
+                        break
+
+                if dot_pos == -1:
+                    continue
+

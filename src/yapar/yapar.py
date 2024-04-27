@@ -3,6 +3,7 @@ import argparse
 from src.yalex.lex_analyzer_factory import create_lex_analyzer
 from src.yapar.file_parser import FileParser
 from src.yapar.slr import SLR
+from src.yapar.lr_symbol import LrSymbol
 
 
 def parse_args():
@@ -43,7 +44,7 @@ def main():
         #     return
 
         slr = SLR(tokens, ignored_tokens, productions)
-        temp = slr.closure(slr.initial_set)
+        temp = slr.goto(slr.initial_set, LrSymbol("E"))
         print("END")
 
     except Exception as e:
