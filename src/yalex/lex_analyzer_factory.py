@@ -156,11 +156,20 @@ def copy_token_file(output_path: str) -> None:
             token_file.write(file.read())
 
 
-def create_lex_analyzer(yal_path: str, output_path: str) -> None:
+def get_token_types(automatons_str: dict) -> set:
+    token_types = set()
+    for rule in automatons_str:
+        for automaton in automatons_str[rule]:
+            token_types.add(automaton["return"])
+    return token_types
+
+
+def create_lex_analyzer(yal_path: str, output_path: str) -> set:
     try:
         header, automatons_str, footer = parse_file(yal_path)
         copy_token_file(output_path)
         create_lex_file(header, automatons_str, footer, output_path)
+        return get_token_types(automatons_str)
 
     except Exception as e:
         raise Exception(f"Error creating the lexical analyzer: {e}")

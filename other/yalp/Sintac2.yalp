@@ -13,6 +13,7 @@
 %token TIMES
 %token LPAREN RPAREN
 %token WS
+%token TEST
 IGNORE WS
 
 %%
