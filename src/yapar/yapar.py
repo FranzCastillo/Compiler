@@ -18,7 +18,7 @@ def main():
     # yalp_path = args.yalp_path
     # yalex_path = args.yalex_path
     # output_path = args.output_path
-    yalp_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\Sintac.yalp"
+    yalp_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\Sintac2.yalp"
     yalex_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yal\\CODE_Hard.yal"
     output_path = "D:\\UVG\\Compiladores\\Compiler\\other\\output"
 

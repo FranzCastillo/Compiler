@@ -37,7 +37,7 @@ def split_file(file_content: str) -> tuple:
     return tokens_content.strip(), productions_content.strip()
 
 
-def process_token_section(token_section: str) -> tuple:
+def process_token_section(token_section: str) -> tuple[set, set]:
     """
     Process the token section of the file
     """
@@ -72,6 +72,32 @@ def process_token_section(token_section: str) -> tuple:
     return tokens, ignored_tokens
 
 
+def process_prod_section(prod_section: str) -> dict:
+    """
+    Process the production section of the file
+    """
+    productions = {}
+
+    unprocessed_prods = prod_section.split(";")
+    for prod in unprocessed_prods:
+        prod = prod.strip()
+        if not prod:
+            continue
+
+        prod_parts = prod.split(":")
+        prod_head = prod_parts[0].strip()
+        prod_body = prod_parts[1].strip().split("|")
+
+        if prod_head in productions:
+            raise Exception(f"Production {prod_head} already defined.")
+
+        productions[prod_head] = []
+        for body in prod_body:
+            productions[prod_head].append(body.strip().split(" "))
+
+    return productions
+
+
 class FileParser:
     def __init__(self, file_path: str):
         try:
@@ -82,5 +108,6 @@ class FileParser:
             # Split the file into tokens and productions
             tokens_section, productions_section = split_file(content)
             self.tokens, self.ignored_tokens = process_token_section(tokens_section)
+            self.productions = process_prod_section(productions_section)
         except Exception as e:
             raise Exception(f"Error processing the YAPar file: {e}")
