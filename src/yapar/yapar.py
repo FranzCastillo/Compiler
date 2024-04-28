@@ -31,9 +31,14 @@ def main():
     yalex_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yal\\CODE_Hard.yal"
     output_path = "D:\\UVG\\Compiladores\\Compiler\\other\\output"
 
+    yapar_file = FileParser(yalp_path)
+    tokens = yapar_file.tokens
+    ignored_tokens = yapar_file.ignored_tokens
+    productions = yapar_file.productions
+
     # Process the YALex File
     try:
-        token_types = create_lex_analyzer(yalex_path, output_path)
+        # token_types = create_lex_analyzer(yalex_path, output_path)
         yapar_file = FileParser(yalp_path)
         tokens = yapar_file.tokens
         ignored_tokens = yapar_file.ignored_tokens
@@ -44,9 +49,6 @@ def main():
         #     return
 
         slr = SLR(tokens, ignored_tokens, productions)
-        temp = slr.goto(slr.initial_set, LrSymbol("LPAREN", is_terminal=True))
-        temp2 = slr.closure(temp)
-        print("END")
 
     except Exception as e:
         print(f"Error processing the YALex file: {e}")

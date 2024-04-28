@@ -36,9 +36,13 @@ def find_pending_symbols(prod_body: list[LrSymbol]) -> set:
     Find the pending symbols in the body of a production
     A pending symbol are the non-terminal symbols that are after the dot
     """
+    dot_found = False
     pending_symbols = set()
     for i, symbol in enumerate(prod_body):
-        if not symbol.is_terminal and not symbol.is_dot:
+        if symbol.is_dot:
+            dot_found = True
+            continue
+        if dot_found and not symbol.is_terminal:
             pending_symbols.add(symbol)
     return pending_symbols
 
@@ -54,8 +58,27 @@ class SLR:
             set_id=self.id_giver.get_id(),
             heart_prods={self.start_symbol: self.productions[self.start_symbol]},
         )
+        self.symbols = self._get_symbols()
+        self.ignored_symbols = [LrSymbol(symbol) for symbol in ignored_tokens]
+        self.build_lr0_automaton()
 
-    def closure(self, lr_set: LrSet) -> dict:
+    def _get_symbols(self) -> set[LrSymbol]:
+        """
+        Get the symbols from the tokens
+        """
+        symbols = {LrSymbol(symbol) for symbol in self.tokens}
+
+        for head, body in self.productions.items():
+            symbols.add(head)
+            for prod in body:
+                for symbol in prod:
+                    if symbol not in symbols:
+                        symbols.add(symbol)
+
+        return symbols
+
+
+    def closure(self, lr_set: LrSet) -> LrSet:
         """
         Compute the closure of the heart productions
         """
@@ -63,7 +86,7 @@ class SLR:
 
         # Add the heart productions to the set_prods
         for head, body in lr_set.heart_prods.items():
-            set_prods[head] = body
+            set_prods[head] = body.copy()
 
         pending_symbols = set()
         for head, body in lr_set.heart_prods.items():
@@ -88,7 +111,9 @@ class SLR:
                 set_prods[symbol].append(temp_prod)
                 pending_symbols |= find_pending_symbols(temp_prod)
 
-        return set_prods
+        lr_set.closure_prods = set_prods
+
+        return lr_set
 
     def goto(self, lr_set: LrSet, lr_symbol: LrSymbol) -> LrSet:
         """
@@ -97,13 +122,17 @@ class SLR:
         new_set_prods = {}
 
         current_set_prods = self.closure(lr_set)
-        for head, body in current_set_prods.items():
+        for head, body in current_set_prods.closure_prods.items():
             for prod in body:
                 dot_pos = -1
                 for i, symbol in enumerate(prod):
                     if symbol.is_dot:
                         dot_pos = i
                         break
+
+                # If the dot is at the end of the list
+                if dot_pos == len(prod) - 1:
+                    continue
 
                 if prod[dot_pos + 1] == lr_symbol:
                     temp_prod = prod.copy()
@@ -120,3 +149,23 @@ class SLR:
             heart_prods=new_set_prods,
         )
 
+    def build_lr0_automaton(self):
+        """
+        Build the LR(0) automaton
+        """
+        pending_sets = [self.closure(self.initial_set)]
+        all_sets = [self.initial_set]
+        while pending_sets:
+            current_set = pending_sets.pop(0)
+            for symbol in self.symbols:
+                new_set = self.goto(current_set, symbol)
+                # Check if the new set already exists
+                if new_set.heart_prods:
+                    if new_set in all_sets:
+                        new_set = all_sets[all_sets.index(new_set)]
+                    else:
+                        pending_sets.append(new_set)
+                        all_sets.append(new_set)
+                        self.closure(new_set)
+
+                    current_set.add_transition(symbol, new_set)
