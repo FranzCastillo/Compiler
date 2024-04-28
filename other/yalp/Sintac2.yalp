@@ -24,7 +24,7 @@ e: e PLUS t
  | t
  ;
 
-t: t TIMES f 
+t: t TIMES f
  | f
  ;
 

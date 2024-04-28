@@ -27,7 +27,7 @@ def augment_productions(productions: dict) -> tuple[LrSymbol, dict]:
         f"{old_start_symbol.symbol}'",
         is_terminal=False,
     )
-    productions[new_start_symbol] = [[LrSymbol(".", is_dot=True), old_start_symbol]]
+    productions[new_start_symbol] = [[LrSymbol('•', is_dot=True), old_start_symbol]]
     return new_start_symbol, productions
 
 
@@ -73,6 +73,8 @@ class SLR:
                     if symbol not in symbols:
                         symbols.add(symbol)
 
+        symbols.add(LrSymbol("$", is_sentinel=True))
+
         return symbols
 
     def closure(self, lr_set: LrSet) -> LrSet:
@@ -105,7 +107,7 @@ class SLR:
                 continue
 
             for prod in self.productions[symbol]:
-                temp_prod = [LrSymbol('.', is_dot=True)]
+                temp_prod = [LrSymbol('•', is_dot=True)]
                 for prod_symbol in prod:
                     temp_prod.append(prod_symbol)
                 set_prods[symbol].append(temp_prod)
@@ -132,12 +134,22 @@ class SLR:
 
                 # If the dot is at the end of the list
                 if dot_pos == len(prod) - 1:
+                    # If the head is the start symbol
+                    if head == self.start_symbol and lr_symbol.is_sentinel:
+                        temp = LrSet(
+                            set_id=self.id_giver.get_id(),
+                            heart_prods={},
+                            is_accepting=True,
+                        )
+                        lr_set.add_transition(lr_symbol, temp)
+                        return temp
+
                     continue
 
                 if prod[dot_pos + 1] == lr_symbol:
                     temp_prod = prod.copy()
                     temp_prod[dot_pos] = lr_symbol
-                    temp_prod[dot_pos + 1] = LrSymbol(".", is_dot=True)
+                    temp_prod[dot_pos + 1] = LrSymbol("•", is_dot=True)
 
                     if head not in new_set_prods:
                         new_set_prods[head] = []
@@ -160,7 +172,7 @@ class SLR:
             for symbol in self.symbols:
                 new_set = self.goto(current_set, symbol)
                 # Check if the new set already exists
-                if new_set.heart_prods:
+                if new_set.heart_prods or new_set.is_accepting:
                     if new_set in self.all_sets:
                         new_set = self.all_sets[self.all_sets.index(new_set)]
                     else:
