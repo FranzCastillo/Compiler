@@ -49,6 +49,7 @@ def find_pending_symbols(prod_body: list[LrSymbol]) -> set:
 
 class SLR:
     def __init__(self, tokens, ignored_tokens, productions):
+        self.all_sets = None
         self.id_giver = StateId()
         self.tokens = tokens
         self.ignored_tokens = ignored_tokens
@@ -76,7 +77,6 @@ class SLR:
                         symbols.add(symbol)
 
         return symbols
-
 
     def closure(self, lr_set: LrSet) -> LrSet:
         """
@@ -154,18 +154,18 @@ class SLR:
         Build the LR(0) automaton
         """
         pending_sets = [self.closure(self.initial_set)]
-        all_sets = [self.initial_set]
+        self.all_sets = [self.initial_set]
         while pending_sets:
             current_set = pending_sets.pop(0)
             for symbol in self.symbols:
                 new_set = self.goto(current_set, symbol)
                 # Check if the new set already exists
                 if new_set.heart_prods:
-                    if new_set in all_sets:
-                        new_set = all_sets[all_sets.index(new_set)]
+                    if new_set in self.all_sets:
+                        new_set = self.all_sets[self.all_sets.index(new_set)]
                     else:
                         pending_sets.append(new_set)
-                        all_sets.append(new_set)
+                        self.all_sets.append(new_set)
                         self.closure(new_set)
 
                     current_set.add_transition(symbol, new_set)
