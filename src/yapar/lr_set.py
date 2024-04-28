@@ -23,7 +23,16 @@ class LrSet:
         Dot notation for graphviz
         """
         # Remove the heart productions from the closure_prods
-        body_prods = {head: body for head, body in self.closure_prods.items() if head not in self.heart_prods}
+        body_prods = {}
+        # Add bodies that are not part of the heart productions
+        for head, bodies in self.closure_prods.items():
+            if head not in self.heart_prods:
+                body_prods[head] = bodies
+
+        # Add bodies that are part of the heart productions
+        for head, bodies in self.closure_prods.items():
+            if head in self.heart_prods:
+                body_prods[head] = [body for body in bodies if body not in self.heart_prods[head]]
 
         dot = f'''<
         <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">

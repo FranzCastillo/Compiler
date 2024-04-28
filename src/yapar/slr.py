@@ -31,20 +31,17 @@ def augment_productions(productions: dict) -> tuple[LrSymbol, dict]:
     return new_start_symbol, productions
 
 
-def find_pending_symbols(prod_body: list[LrSymbol]) -> set:
+def find_pending_symbols(prod_body: list[LrSymbol]) -> LrSymbol:
     """
     Find the pending symbols in the body of a production
     A pending symbol are the non-terminal symbols that are after the dot
     """
-    dot_found = False
-    pending_symbols = set()
     for i, symbol in enumerate(prod_body):
         if symbol.is_dot:
-            dot_found = True
-            continue
-        if dot_found and not symbol.is_terminal:
-            pending_symbols.add(symbol)
-    return pending_symbols
+            if i + 1 < len(prod_body):
+                return prod_body[i + 1]
+            else:
+                return None
 
 
 class SLR:
@@ -91,7 +88,7 @@ class SLR:
         pending_symbols = set()
         for head, body in lr_set.heart_prods.items():
             for prod in body:
-                pending_symbols |= find_pending_symbols(prod)
+                pending_symbols.add(find_pending_symbols(prod))
 
         checked_symbols = set()
 
@@ -104,12 +101,15 @@ class SLR:
             if symbol not in set_prods:
                 set_prods[symbol] = []
 
+            if symbol not in self.productions:
+                continue
+
             for prod in self.productions[symbol]:
                 temp_prod = [LrSymbol('.', is_dot=True)]
                 for prod_symbol in prod:
                     temp_prod.append(prod_symbol)
                 set_prods[symbol].append(temp_prod)
-                pending_symbols |= find_pending_symbols(temp_prod)
+                pending_symbols.add(find_pending_symbols(temp_prod))
 
         lr_set.closure_prods = set_prods
 

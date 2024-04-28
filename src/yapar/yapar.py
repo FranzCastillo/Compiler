@@ -4,7 +4,7 @@ from src.yalex.lex_analyzer_factory import create_lex_analyzer
 from src.yapar.file_parser import FileParser
 from src.yapar.slr import SLR
 from src.yapar.lr_symbol import LrSymbol
-from src.view.lr0_view import LR0View
+from src.view.lr0_view import draw_LR0
 
 
 def parse_args():
@@ -38,8 +38,7 @@ def main():
     productions = yapar_file.productions
 
     slr = SLR(tokens, ignored_tokens, productions)
-    view = LR0View()
-    view.draw_LR0(slr.all_sets, f"{output_path}\\LR0")
+    draw_LR0(slr.all_sets, f"{output_path}\\LR0")
 
     # Process the YALex File
     # try:
