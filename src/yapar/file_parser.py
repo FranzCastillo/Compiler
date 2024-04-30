@@ -79,6 +79,19 @@ def process_prod_section(prod_section: str, tokens: set) -> dict:
     productions = {}
 
     unprocessed_prods = prod_section.split(";")
+
+    for prod in unprocessed_prods:
+        prod = prod.strip()
+        if not prod:
+            continue
+
+        prod_parts = prod.split(":")
+        prod_head = prod_parts[0].strip()
+        if prod_head in productions:
+            raise Exception(f"Production {prod_head} already defined.")
+
+        productions[prod_head] = []
+
     for prod in unprocessed_prods:
         prod = prod.strip()
         if not prod:
@@ -88,16 +101,12 @@ def process_prod_section(prod_section: str, tokens: set) -> dict:
         prod_head = prod_parts[0].strip()
         prod_body = prod_parts[1].strip().split("|")
 
-        if prod_head in productions:
-            raise Exception(f"Production {prod_head} already defined.")
-
-        productions[prod_head] = []
         for body in prod_body:
             temp = body.strip().split(" ")
             if not temp:
                 raise Exception(f"Invalid production: {body}")
             for item in temp:
-                if item.isupper() and item not in tokens:
+                if item.isupper() and (item not in tokens) and (item not in productions):
                     raise Exception(f"Token {item} not defined.")
             productions[prod_head].append(temp)
 

@@ -1,0 +1,49 @@
+%token COOKS DRINKS EATS CUTS IN WITH CAT DOG BEER CAKE JUICE MEAT SOUP FORK KNIFE OVEN SPOON A THE HE SHE
+%token WS
+IGNORE WS
+%%
+
+S:
+    NP WS VP
+;
+
+VP: VP WS PP
+    | COOKS
+    | DRINKS
+    | EATS
+    | CUTS
+;
+
+PP: P WS NP
+;
+
+NP: DET WS N
+    | HE
+    | SHE
+;
+
+V:  COOKS
+    | DRINKS
+    | EATS
+    | CUTS
+;
+
+P:  IN | WITH
+;
+
+N: CAT
+    | DOG
+    | BEER
+    | CAKE
+    | JUICE
+    | MEAT
+    | SOUP
+    | FORK
+    | KNIFE
+    | OVEN
+    | SPOON
+;
+
+DET: A
+    | THE
+;

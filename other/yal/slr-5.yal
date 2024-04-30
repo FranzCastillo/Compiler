@@ -1,0 +1,33 @@
+%%
+(* Lexer para Gramática No. 4 *)
+
+(* Introducir cualquier header aqui *)
+
+let delim = [' ''\t''\n']
+let ws = delim+
+
+rule tokens4 = ws  { return "WS" }
+  | 'a'             { return "A" }
+  | 'i''n'          { return "IN" }
+  | 'h''e'          { return "HE" }
+  | 't''h''e'       { return "THE" }
+  | 's''h''e'       { return "SHE" }
+  | 'c''a''t'       { return "CAT" }
+  | 'd''o''g'       { return "DOG" }
+  | 'e''a''t''s'    { return "EATS" }
+  | 'w''i''t''h'    { return "WITH" }
+  | 'c''u''t''s'    { return "CUTS" }
+  | 'b''e''e''r'    { return "BEER" }
+  | 'c''a''k''e'    { return "CAKE" }
+  | 'm''e''a''t'    { return "MEAT" }
+  | 's''o''u''p'    { return "SOUP" }
+  | 'f''o''r''k'    { return "FORK" }
+  | 'o''v''e''n'    { return "OVEN" }
+  | 'j''u''i''c''e' { return "JUICE" }
+  | 'k''n''i''f''e' { return "KNIFE" }
+  | 's''p''o''o''n' { return "SPOON" }
+  | 'c''o''o''k''s' { return "COOKS" }
+  | 'd''r''i''n''k''s'  { return "DRINKS" }
+
+(* Introducir cualquier trailer aqui *)
+%%
