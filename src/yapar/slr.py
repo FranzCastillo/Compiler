@@ -11,7 +11,14 @@ def parse_productions(tokens: list[str], productions: dict) -> dict:
     for key, value in productions.items():
         key = LrSymbol(key, is_terminal=False)  # The head of a productions is never a terminal
         parsed_productions[key] = [
-            [LrSymbol(symbol, symbol in tokens) for symbol in production]
+            [
+                LrSymbol(
+                    symbol,
+                    is_terminal=symbol in tokens,
+                    is_epsilon=symbol == "ε"
+                )
+                for symbol in production
+            ]
             for production in value
         ]
 

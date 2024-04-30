@@ -117,7 +117,7 @@ class FileParser:
     def __init__(self, file_path: str):
         try:
             # Read the file
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read()
 
             # Split the file into tokens and productions
