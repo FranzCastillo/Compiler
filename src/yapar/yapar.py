@@ -28,7 +28,7 @@ def main():
     # yalp_path = args.yalp_path
     # yalex_path = args.yalex_path
     # output_path = args.output_path
-    yalp_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\Sintac.yalp"
+    yalp_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\Sintac2.yalp"
     yalex_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yal\\CODE_Hard.yal"
     output_path = "D:\\UVG\\Compiladores\\Compiler\\other\\output"
 
@@ -38,7 +38,9 @@ def main():
     productions = yapar_file.productions
 
     slr = SLR(tokens, ignored_tokens, productions)
-    draw_LR0(slr.all_sets, f"{output_path}\\LR0")
+    # draw_LR0(slr.all_sets, f"{output_path}\\LR0")
+
+    print(slr.first())
 
     # Process the YALex File
     # try:

@@ -3,7 +3,7 @@ from src.yapar.lr_set import LrSet
 from src.yapar.lr_symbol import LrSymbol
 
 
-def parse_productions(tokens: list[str], productions: dict) -> dict:
+def parse_productions(tokens: list[LrSymbol], productions: dict) -> dict:
     """
     Parse the productions to use LrSymbol
     """
@@ -38,7 +38,7 @@ def augment_productions(productions: dict) -> tuple[LrSymbol, dict]:
     return new_start_symbol, productions
 
 
-def find_pending_symbols(prod_body: list[LrSymbol]) -> LrSymbol:
+def find_pending_symbols(prod_body: list[LrSymbol]) -> LrSymbol | None:
     """
     Find the pending symbols in the body of a production
     A pending symbol are the non-terminal symbols that are after the dot
@@ -49,6 +49,21 @@ def find_pending_symbols(prod_body: list[LrSymbol]) -> LrSymbol:
                 return prod_body[i + 1]
             else:
                 return None
+    return None
+
+
+def has_epsilon_production(symbol: LrSymbol, productions: dict) -> bool:
+    """
+    Check if a symbol has an epsilon production
+    """
+    if symbol not in productions:
+        return False
+
+    for prod in productions[symbol]:
+        if len(prod) == 1 and prod[0].is_epsilon:
+            return True
+
+    return False
 
 
 class SLR:
@@ -57,11 +72,12 @@ class SLR:
         self.id_giver = StateId()
         self.tokens = tokens
         self.ignored_tokens = ignored_tokens
-        temp_productions = parse_productions(self.tokens, productions)
-        self.start_symbol, self.productions = augment_productions(temp_productions)
+        self.productions = parse_productions(self.tokens, productions)
+        self.start_symbol = list(self.productions.keys())[0]
+        self.augmented_start_symbol, self.augmented_productions = augment_productions(self.productions.copy())
         self.initial_set = LrSet(
             set_id=self.id_giver.get_id(),
-            heart_prods={self.start_symbol: self.productions[self.start_symbol]},
+            heart_prods={self.augmented_start_symbol: self.augmented_productions[self.augmented_start_symbol]},
         )
         self.symbols = self._get_symbols()
         self.ignored_symbols = [LrSymbol(symbol) for symbol in ignored_tokens]
@@ -73,7 +89,7 @@ class SLR:
         """
         symbols = {LrSymbol(symbol) for symbol in self.tokens}
 
-        for head, body in self.productions.items():
+        for head, body in self.augmented_productions.items():
             symbols.add(head)
             for prod in body:
                 for symbol in prod:
@@ -110,10 +126,10 @@ class SLR:
             if symbol not in set_prods:
                 set_prods[symbol] = []
 
-            if symbol not in self.productions:
+            if symbol not in self.augmented_productions:
                 continue
 
-            for prod in self.productions[symbol]:
+            for prod in self.augmented_productions[symbol]:
                 temp_prod = [LrSymbol('•', is_dot=True)]
                 for prod_symbol in prod:
                     temp_prod.append(prod_symbol)
@@ -142,7 +158,7 @@ class SLR:
                 # If the dot is at the end of the list
                 if dot_pos == len(prod) - 1:
                     # If the head is the start symbol
-                    if head == self.start_symbol and lr_symbol.is_sentinel:
+                    if head == self.augmented_start_symbol and lr_symbol.is_sentinel:
                         temp = LrSet(
                             set_id=self.id_giver.get_id(),
                             heart_prods={},
@@ -188,3 +204,33 @@ class SLR:
                         self.closure(new_set)
 
                     current_set.add_transition(symbol, new_set)
+
+    def first(self):
+        first_sets = {}
+        for head in self.productions.keys():
+            first_sets[head] = self._first(head, set())
+        return first_sets
+
+    def _first(self, symbol: LrSymbol, seen: set[LrSymbol]) -> set[LrSymbol]:
+        """
+        Compute the first set of a symbol
+        """
+        if symbol.is_terminal:
+            return {symbol}
+
+        if symbol in seen:
+            return set()
+
+        seen.add(symbol)
+
+        first_set = set()
+        for prod in self.productions.get(symbol, []):
+            for prod_symbol in prod:
+                symbol_first = self._first(prod_symbol, seen)
+                first_set.update(symbol_first)
+                if LrSymbol("ε", is_epsilon=True) not in symbol_first:
+                    break
+            else:
+                first_set.add(LrSymbol("ε", is_epsilon=True))
+
+        return first_set
