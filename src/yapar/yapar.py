@@ -40,7 +40,7 @@ def main():
     slr = SLR(tokens, ignored_tokens, productions)
     # draw_LR0(slr.all_sets, f"{output_path}\\LR0")
 
-    print(slr.first())
+    print(slr.follow())
 
     # Process the YALex File
     # try:

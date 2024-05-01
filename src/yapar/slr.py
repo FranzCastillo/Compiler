@@ -234,3 +234,41 @@ class SLR:
                 first_set.add(LrSymbol("ε", is_epsilon=True))
 
         return first_set
+
+    def follow(self):
+        follow_sets = {}
+        for head in self.productions.keys():
+            follow_sets[head] = self._follow(head, set())
+        return follow_sets
+
+    def _follow(self, symbol: LrSymbol, seen: set[LrSymbol]) -> set[LrSymbol]:
+        """
+        Compute the follow set of a symbol
+        """
+        if symbol.is_terminal:
+            return {symbol}
+
+        if symbol in seen:
+            return set()
+
+        seen.add(symbol)
+
+        follow_set = set()
+        for head, body in self.productions.items():
+            for prod in body:
+                for i, prod_symbol in enumerate(prod):
+                    if prod_symbol == symbol:
+                        if i + 1 < len(prod):
+                            next_symbol = prod[i + 1]
+                            next_symbol_first = self._first(next_symbol, set())
+                            follow_set.update(next_symbol_first)
+                            if LrSymbol("ε", is_epsilon=True) in next_symbol_first:
+                                follow_set.update(self._follow(head, seen))
+                        else:
+                            follow_set.update(self._follow(head, seen))
+
+        # If the symbol is the initial symbol, add the sentinel symbol to its follow set
+        if symbol == self.start_symbol:
+            follow_set.add(LrSymbol("$", is_sentinel=True))
+
+        return follow_set
