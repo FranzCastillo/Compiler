@@ -22,4 +22,4 @@ def draw_LR0(sets: list[LrSet], output_path: str):
         for symbol, next_set in lr_set.transitions.items():
             dot.edge(str(lr_set), str(next_set), label=str(symbol))
 
-    dot.render(output_path, cleanup=True, view=True)
+    dot.render(f"{output_path}\\LR0", cleanup=True, view=True)

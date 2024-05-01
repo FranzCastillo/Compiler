@@ -11,16 +11,8 @@ def parse_productions(tokens: list[LrSymbol], productions: dict) -> dict:
     for key, value in productions.items():
         key = LrSymbol(key, is_terminal=False)  # The head of a productions is never a terminal
         parsed_productions[key] = [
-            [
-                LrSymbol(
-                    symbol,
-                    is_terminal=symbol in tokens,
-                    is_epsilon=symbol == "ε"
-                )
-                for symbol in production
-            ]
-            for production in value
-        ]
+            [LrSymbol(symbol, is_terminal=symbol in tokens, is_epsilon=symbol == "ε") for symbol in production] for
+            production in value]
 
     return parsed_productions
 
@@ -30,10 +22,7 @@ def augment_productions(productions: dict) -> tuple[LrSymbol, dict]:
     Augment the productions with the start symbol
     """
     old_start_symbol = list(productions.keys())[0]
-    new_start_symbol = LrSymbol(
-        f"{old_start_symbol.symbol}'",
-        is_terminal=False,
-    )
+    new_start_symbol = LrSymbol(f"{old_start_symbol.symbol}'", is_terminal=False, )
     productions[new_start_symbol] = [[LrSymbol('•', is_dot=True), old_start_symbol]]
     return new_start_symbol, productions
 
@@ -75,10 +64,8 @@ class SLR:
         self.productions = parse_productions(self.tokens, productions)
         self.start_symbol = list(self.productions.keys())[0]
         self.augmented_start_symbol, self.augmented_productions = augment_productions(self.productions.copy())
-        self.initial_set = LrSet(
-            set_id=self.id_giver.get_id(),
-            heart_prods={self.augmented_start_symbol: self.augmented_productions[self.augmented_start_symbol]},
-        )
+        self.initial_set = LrSet(set_id=self.id_giver.get_id(),
+            heart_prods={self.augmented_start_symbol: self.augmented_productions[self.augmented_start_symbol]}, )
         self.symbols = self._get_symbols()
         self.ignored_symbols = [LrSymbol(symbol) for symbol in ignored_tokens]
         self.build_lr0_automaton()
@@ -159,11 +146,7 @@ class SLR:
                 if dot_pos == len(prod) - 1:
                     # If the head is the start symbol
                     if head == self.augmented_start_symbol and lr_symbol.is_sentinel:
-                        temp = LrSet(
-                            set_id=self.id_giver.get_id(),
-                            heart_prods={},
-                            is_accepting=True,
-                        )
+                        temp = LrSet(set_id=self.id_giver.get_id(), heart_prods={}, is_accepting=True, )
                         lr_set.add_transition(lr_symbol, temp)
                         return temp
 
@@ -179,10 +162,7 @@ class SLR:
 
                     new_set_prods[head].append(temp_prod)
 
-        return LrSet(
-            set_id=self.id_giver.get_id(),
-            heart_prods=new_set_prods,
-        )
+        return LrSet(set_id=self.id_giver.get_id(), heart_prods=new_set_prods, )
 
     def build_lr0_automaton(self):
         """

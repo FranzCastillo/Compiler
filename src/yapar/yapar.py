@@ -1,10 +1,9 @@
 import argparse
 
+from src.view.lr0_view import draw_LR0
 from src.yalex.lex_analyzer_factory import create_lex_analyzer
 from src.yapar.file_parser import FileParser
 from src.yapar.slr import SLR
-from src.yapar.lr_symbol import LrSymbol
-from src.view.lr0_view import draw_LR0
 
 
 def parse_args():
@@ -37,31 +36,28 @@ def main():
     ignored_tokens = yapar_file.ignored_tokens
     productions = yapar_file.productions
 
-    slr = SLR(tokens, ignored_tokens, productions)
-    # draw_LR0(slr.all_sets, f"{output_path}\\LR0")
-
-    print(slr.follow())
-
     # Process the YALex File
-    # try:
-    #     # token_types = create_lex_analyzer(yalex_path, output_path)
-    #     yapar_file = FileParser(yalp_path)
-    #     tokens = yapar_file.tokens
-    #     ignored_tokens = yapar_file.ignored_tokens
-    #     productions = yapar_file.productions
-    #
-    #     # if not are_tokens_valid(token_types, tokens):
-    #     #     print("The tokens in the YALex file don't match the tokens in the YALp file")
-    #     #     return
-    #
-    #     slr = SLR(tokens, ignored_tokens, productions)
-    #     view = LR0View()
-    #     view.draw_LR0(slr.initial_set, output_path)
-    #
-    #
-    # except Exception as e:
-    #     print(f"Error processing the YALex file: {e}")
-    #     return
+    try:
+        token_types = create_lex_analyzer(yalex_path, output_path)
+        yapar_file = FileParser(yalp_path)
+        tokens = yapar_file.tokens
+        ignored_tokens = yapar_file.ignored_tokens
+        productions = yapar_file.productions
+
+        # if not are_tokens_valid(token_types, tokens):
+        #     print("The tokens in the YALex file don't match the tokens in the YALp file")
+        #     return
+
+        slr = SLR(tokens, ignored_tokens, productions)
+        slr.build_lr0_automaton()
+        draw_LR0(slr.all_sets, output_path)
+        print(f"LR0 created on {output_path}\\LR0.png")
+        print(f"Función Primero: {slr.first()}")
+        print(f"Función Siguiente: {slr.follow()}")
+
+    except Exception as e:
+        print(f"Error processing the YALex file: {e}")
+        return
 
 
 if __name__ == "__main__":
