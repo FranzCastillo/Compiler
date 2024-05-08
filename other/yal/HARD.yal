@@ -1,0 +1,32 @@
+(* HEADER *)
+%%
+let delim = [' ''\t''\n']
+let ws = delim+
+
+rule tokens =
+    ws          { WS }
+|   'a'         { A }
+|   "in"        { IN }
+|   "he"        { HE }
+|   "the"       { THE }
+|   "she"       { SHE }
+|   "cat"       { CAT }
+|   "dog"       { DOG }
+|   "eats"      { EATS }
+|   "with"      { WITH }
+|   "cuts"      { CUTS }
+|   "beer"      { BEER }
+|   "cake"      { CAKE }
+|   "meat"      { MEAT }
+|   "soup"      { SOUP }
+|   "fork"      { FORK }
+|   "oven"      { OVEN }
+|   "juice"     { JUICE }
+|   "knife"     { KNIFE }
+|   "spoon"     { SPOON }
+|   "cooks"     { COOKS }
+|   "drinks"    { DRINKS }
+
+%%
+
+(* TRAILER *)

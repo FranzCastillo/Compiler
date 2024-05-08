@@ -27,8 +27,8 @@ def main():
     # yalp_path = args.yalp_path
     # yalex_path = args.yalex_path
     # output_path = args.output_path
-    yalp_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\Sintac2.yalp"
-    yalex_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yal\\CODE_Hard.yal"
+    yalp_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\EASY.yalp"
+    yalex_path = "D:\\UVG\\Compiladores\\Compiler\\other\\yal\\EASY.yal"
     output_path = "D:\\UVG\\Compiladores\\Compiler\\other\\output"
 
     yapar_file = FileParser(yalp_path)
@@ -44,9 +44,9 @@ def main():
         ignored_tokens = yapar_file.ignored_tokens
         productions = yapar_file.productions
 
-        # if not are_tokens_valid(token_types, tokens):
-        #     print("The tokens in the YALex file don't match the tokens in the YALp file")
-        #     return
+        if not are_tokens_valid(token_types, tokens):
+            print("The tokens in the YALex file don't match the tokens in the YALp file")
+            return
 
         slr = SLR(tokens, ignored_tokens, productions)
         slr.build_lr0_automaton()

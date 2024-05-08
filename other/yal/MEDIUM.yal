@@ -1,0 +1,29 @@
+(* HEADER *)
+%%
+let delim = [' ''\t''\n']
+let ws = delim+
+
+let letters = ['a'-'z''A'-'Z']
+let digit = ['0'-'9']
+let digits = digit+
+
+let id = letters(letters|digits|'_')*
+let number = digits.('.'.digits)?.('E'['+''-']?.digits)?
+
+
+rule tokens =
+    ws      { WS }
+|   id      { ID }
+|   number  { NUMBER }
+|   ">"     { GT }
+|   ">="    { GE }
+|   "<"     { LT }
+|   "<="    { LE }
+|   "="     { EQ }
+|   "!="    { NEQ }
+|   "if"    { IF }
+|   "then"  { THEN }
+|   "else"  { ELSE }
+
+%%
+(* FOOTER *)
