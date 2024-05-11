@@ -84,22 +84,32 @@ def build_str_automatons(rules: dict) -> str:
             automatons_str[rule] = []
             for regex in rules[rule]:
                 direct_dfa_grammar = process_regex(regex)
-                automatons_str[rule].append({"automaton": direct_dfa_grammar.to_json(), "return": rules[rule][regex]})
+                automatons_str[rule].append({
+                    "automaton": direct_dfa_grammar.to_json(),
+                    "return": rules[rule][regex]
+                })
 
         return automatons_str
     except Exception as e:
-        raise Exception(f"Can't building the string automatons: {e}")
+        raise Exception(f"Error building the string automatons: {e}")
 
 
-def get_token_types(automatons_str: dict) -> set:
-    token_types = set()
-    for rule in automatons_str:
-        for automaton in automatons_str[rule]:
-            token_types.add(automaton["return"])
-    return token_types
+def parse_file(yal_path: str) -> tuple:
+    try:
+        file_parser = FileParser(
+            read_file(yal_path)
+        )
+        header = file_parser.declarations_content
+        automatons_str = build_str_automatons(file_parser.rules)
+        footer = file_parser.code_content
+        return header, automatons_str, footer
+
+    except Exception as e:
+        raise Exception(f"Error processing the YAL file: {e}")
 
 
-def create_lex_file(header: str, automatons: dict, footer: str, output_path: str) -> None:
+def create_lex_file(header: str = "", automatons: dict = None, footer: str = "",
+                    output_path: str = "output/lex_analyzer") -> None:
     """
     Create the lexical analyzer with the given automatons.
     :param header: Header of the lexical analyzer
@@ -118,9 +128,9 @@ def create_lex_file(header: str, automatons: dict, footer: str, output_path: str
             with open(f"{output_path}/{rule}_automaton.json", "w") as file:
                 json.dump(automatons[rule], file, indent=4)
 
-        with open("templates/yalex_template.py", "r") as file:
+        with open("../yalex/lex_analyzer_template.py", "r") as file:
             template = file.read()
-            with open(f"{output_path}/lexical_analyzer.py", "w") as lex_file:
+            with open(f"{output_path}/lex_main.py", "w") as lex_file:
                 # Replace header and footer
                 template = template.replace("# YALEX HEADER", header)
                 template = template.replace("# YALEX FOOTER", footer)
@@ -137,29 +147,29 @@ def create_lex_file(header: str, automatons: dict, footer: str, output_path: str
                 lex_file.write(template)
 
     except Exception as e:
-        raise Exception(f"Can't create File: {e}")
+        raise Exception(f"Error creating the lexical analyzer: {e}")
 
 
-class Factory:
-    def __init__(self, yalex_file_path: str, output_path: str):
-        self.yalex_file_path = yalex_file_path
-        self.output_path = output_path
+def copy_token_file(output_path: str) -> None:
+    with open("../structures/token.py", "r") as file:
+        with open(f"{output_path}/comp_token.py", "w") as token_file:
+            token_file.write(file.read())
 
-    def create_lex_analyzer(self):
-        try:
-            header, automatons_str, footer = self.parse_file()
-            create_lex_file(header, automatons_str, footer, self.output_path)
-        except Exception as e:
-            raise Exception(f"Error creating the Lexical Analyzer: {e}")
 
-    def parse_file(self) -> tuple:
-        try:
-            # Since the parameter asks for the content of the file
-            file_parser = FileParser(read_file(self.yalex_file_path))
+def get_token_types(automatons_str: dict) -> set:
+    token_types = set()
+    for rule in automatons_str:
+        for automaton in automatons_str[rule]:
+            token_types.add(automaton["return"])
+    return token_types
 
-            header = file_parser.declarations_content
-            automatons_str = build_str_automatons(file_parser.rules)
-            footer = file_parser.code_content
-            return header, automatons_str, footer
-        except Exception as e:
-            raise Exception(f"Can't parse the file: {e}")
+
+def create_lex_analyzer(yal_path: str, output_path: str) -> set:
+    try:
+        header, automatons_str, footer = parse_file(yal_path)
+        copy_token_file(output_path)
+        create_lex_file(header, automatons_str, footer, output_path)
+        return get_token_types(automatons_str)
+
+    except Exception as e:
+        raise Exception(f"Error creating the lexical analyzer: {e}")

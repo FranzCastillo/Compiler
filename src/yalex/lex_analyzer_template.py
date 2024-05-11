@@ -5,7 +5,7 @@
 
 import json
 
-from custom_token import Token
+from comp_token import Token
 
 
 class State:
