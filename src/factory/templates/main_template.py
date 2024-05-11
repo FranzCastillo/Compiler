@@ -1,10 +1,16 @@
 import argparse
 
 from lexical_analyzer import Lexer
+from syntactic_analyzer import SLR
 
 
 def main(code_path: str):
     lexer = Lexer(code_path)
+    parser = SLR(
+        #TOKENS#,
+        #IGNORED_TOKENS#,
+        #PRODUCTIONS#
+    )
 
     while lexer.has_next_token():
         token = lexer.get_next_token()

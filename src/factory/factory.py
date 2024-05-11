@@ -11,22 +11,15 @@ def copy_token_file(output_path: str) -> None:
 
 class Factory:
     def __init__(self, yalex_path: str, yapar_path: str, output_path: str):
-        self.yalex_path = yalex_path
-        self.yal_factory = YalexFactory(yalex_path, output_path)
+        copy_token_file(output_path)
 
-        self.yapar_path = yapar_path
-        self.yap_factory = YaparFactory(yapar_path, output_path)
+        yal_factory = YalexFactory(yalex_path, output_path)
 
-        self.main_factory = MainFactory(output_path)
+        yap_factory = YaparFactory(yapar_path, output_path)
+
+        self.main_factory = MainFactory(output_path, yal_factory, yap_factory)
 
         self.output_path = output_path
 
     def create_analyzer(self):
         self.main_factory.create_main()
-
-        # YALex Files
-        copy_token_file(self.output_path)
-        self.yal_factory.create_lex_analyzer()
-
-        # YAPar Files
-        self.yap_factory.create_parser()
