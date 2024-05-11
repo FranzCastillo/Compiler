@@ -4,7 +4,30 @@ from src.yapar.file_parser import FileParser
 def copy_slr_file(output_path: str) -> None:
     with open("../yapar/slr.py", "r") as file:
         with open(f"{output_path}/syntactic_analyzer.py", "w") as slr_file:
-            slr_file.write(file.read())
+            slr_file.write(
+                file.read()
+                .replace('src.regex.state_id', 'state_id')
+                .replace('src.yapar.lr_set', 'lr_set')
+                .replace('src.yapar.lr_symbol', 'lr_symbol')
+            )
+
+
+def copy_state_id_file(output_path: str) -> None:
+    with open("../regex/state_id.py", "r") as file:
+        with open(f"{output_path}/state_id.py", "w") as state_id_file:
+            state_id_file.write(file.read())
+
+
+def copy_lr_set_file(output_path: str) -> None:
+    with open("../yapar/lr_set.py", "r") as file:
+        with open(f"{output_path}/lr_set.py", "w") as lr_set_file:
+            lr_set_file.write(file.read())
+
+
+def copy_lr_symbol_file(output_path: str) -> None:
+    with open("../yapar/lr_symbol.py", "r") as file:
+        with open(f"{output_path}/lr_symbol.py", "w") as lr_symbol_file:
+            lr_symbol_file.write(file.read())
 
 
 class Factory:
@@ -21,3 +44,6 @@ class Factory:
         self.ignored_tokens = file.ignored_tokens
         self.productions = file.productions
         copy_slr_file(self.output_path)
+        copy_state_id_file(self.output_path)
+        copy_lr_set_file(self.output_path)
+        copy_lr_symbol_file(self.output_path)

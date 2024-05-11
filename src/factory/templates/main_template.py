@@ -11,6 +11,7 @@ def main(code_path: str):
         #IGNORED_TOKENS#,
         #PRODUCTIONS#
     )
+    parser.build_lr0_automaton()
 
     while lexer.has_next_token():
         token = lexer.get_next_token()
