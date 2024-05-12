@@ -1,6 +1,6 @@
+from src.factory.main_factory import Factory as MainFactory
 from src.factory.yalex_factory import Factory as YalexFactory
 from src.factory.yapar_factory import Factory as YaparFactory
-from src.factory.main_factory import Factory as MainFactory
 
 
 def copy_token_file(output_path: str) -> None:

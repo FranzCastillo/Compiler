@@ -2,8 +2,8 @@ from src.yapar.file_parser import FileParser
 
 
 def copy_slr_file(output_path: str) -> None:
-    with open("../yapar/slr.py", "r") as file:
-        with open(f"{output_path}/syntactic_analyzer.py", "w") as slr_file:
+    with open("../yapar/slr.py", "r", encoding='utf-8') as file:
+        with open(f"{output_path}/syntactic_analyzer.py", "w", encoding='utf-8') as slr_file:
             slr_file.write(
                 file.read()
                 .replace('src.regex.state_id', 'state_id')
@@ -13,20 +13,20 @@ def copy_slr_file(output_path: str) -> None:
 
 
 def copy_state_id_file(output_path: str) -> None:
-    with open("../regex/state_id.py", "r") as file:
+    with open("../regex/state_id.py", "r", encoding='utf-8') as file:
         with open(f"{output_path}/state_id.py", "w") as state_id_file:
             state_id_file.write(file.read())
 
 
 def copy_lr_set_file(output_path: str) -> None:
-    with open("../yapar/lr_set.py", "r") as file:
-        with open(f"{output_path}/lr_set.py", "w") as lr_set_file:
+    with open("../yapar/lr_set.py", "r", encoding='utf-8') as file:
+        with open(f"{output_path}/lr_set.py", "w", encoding='utf-8') as lr_set_file:
             lr_set_file.write(file.read())
 
 
 def copy_lr_symbol_file(output_path: str) -> None:
-    with open("../yapar/lr_symbol.py", "r") as file:
-        with open(f"{output_path}/lr_symbol.py", "w") as lr_symbol_file:
+    with open("../yapar/lr_symbol.py", "r", encoding='utf-8') as file:
+        with open(f"{output_path}/lr_symbol.py", "w", encoding='utf-8') as lr_symbol_file:
             lr_symbol_file.write(file.read())
 
 

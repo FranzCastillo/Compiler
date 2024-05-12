@@ -191,28 +191,38 @@ class SLR:
             first_sets[head] = self._first(head, set())
         return first_sets
 
-    def _first(self, symbol: LrSymbol, seen: set[LrSymbol]) -> set[LrSymbol]:
-        """
-        Compute the first set of a symbol
-        """
+    def _first(self, symbol: LrSymbol, first_sets: dict) -> set[LrSymbol]:
         if symbol.is_terminal:
             return {symbol}
 
-        if symbol in seen:
-            return set()
-
-        seen.add(symbol)
+        if symbol in first_sets:
+            return first_sets[symbol]
 
         first_set = set()
-        for prod in self.productions.get(symbol, []):
-            for prod_symbol in prod:
-                symbol_first = self._first(prod_symbol, seen)
-                first_set.update(symbol_first)
-                if LrSymbol("ε", is_epsilon=True) not in symbol_first:
-                    break
-            else:
-                first_set.add(LrSymbol("ε", is_epsilon=True))
+        first_sets[symbol] = first_set
 
+        epsilon = LrSymbol("ε", is_epsilon=True)
+
+        for production_head, productions in self.productions.items():
+            if production_head == symbol:
+                for production in productions:
+                    for prod_symbol in production:
+                        if prod_symbol == epsilon:
+                            first_set.add(epsilon)
+                            break
+
+                        if prod_symbol.is_terminal:
+                            first_set.add(prod_symbol)
+                            break
+
+                        prod_symbol_first = self._first(prod_symbol, first_sets)
+                        first_set.update(prod_symbol_first - {epsilon})
+                        if epsilon not in prod_symbol_first:
+                            break
+                    else:
+                        first_set.add(epsilon)
+
+        first_sets[symbol] = first_set
         return first_set
 
     def follow(self):
