@@ -228,37 +228,30 @@ class SLR:
     def follow(self):
         follow_sets = {}
         for head in self.productions.keys():
-            follow_sets[head] = self._follow(head, set())
+            follow_sets[head] = self._follow(head, {})
         return follow_sets
 
-    def _follow(self, symbol: LrSymbol, seen: set[LrSymbol]) -> set[LrSymbol]:
-        """
-        Compute the follow set of a symbol
-        """
-        if symbol.is_terminal:
-            return {symbol}
-
-        if symbol in seen:
-            return set()
-
-        seen.add(symbol)
+    def _follow(self, symbol: LrSymbol, follow_sets: dict) -> set[LrSymbol]:
+        if symbol in follow_sets:
+            return follow_sets[symbol]
 
         follow_set = set()
-        for head, body in self.productions.items():
-            for prod in body:
-                for i, prod_symbol in enumerate(prod):
-                    if prod_symbol == symbol:
-                        if i + 1 < len(prod):
-                            next_symbol = prod[i + 1]
-                            next_symbol_first = self._first(next_symbol, {})
-                            follow_set.update(next_symbol_first)
-                            if LrSymbol("ε", is_epsilon=True) in next_symbol_first:
-                                follow_set.update(self._follow(head, seen))
-                        else:
-                            follow_set.update(self._follow(head, seen))
-
-        # If the symbol is the initial symbol, add the sentinel symbol to its follow set
         if symbol == self.start_symbol:
             follow_set.add(LrSymbol("$", is_sentinel=True))
 
+        epsilon = LrSymbol("ε", is_epsilon=True)
+        for production_head, productions in self.productions.items():
+            for production_body in productions:
+                for i, prod_symbol in enumerate(production_body):
+                    if symbol == prod_symbol:
+                        if i + 1 < len(production_body):
+                            next_symbol = production_body[i + 1]
+                            next_symbol_first = self._first(next_symbol, follow_sets)
+                            follow_set.update(next_symbol_first - {epsilon})
+
+                        if i + 1 == len(production_body) or epsilon in self._first(production_body[i + 1], follow_sets):
+                            if production_head != symbol:
+                                follow_set.update(self._follow(production_head, follow_sets))
+
+        follow_sets[symbol] = follow_set
         return follow_set
