@@ -64,8 +64,8 @@ class SLR:
         self.productions = parse_productions(self.tokens, productions)
         self.start_symbol = list(self.productions.keys())[0]
         self.augmented_start_symbol, self.augmented_productions = augment_productions(self.productions.copy())
-        self.initial_set = LrSet(set_id=self.id_giver.get_id(),
-            heart_prods={self.augmented_start_symbol: self.augmented_productions[self.augmented_start_symbol]}, )
+        self.initial_set = LrSet(set_id=self.id_giver.get_id(), heart_prods={
+            self.augmented_start_symbol: self.augmented_productions[self.augmented_start_symbol]}, )
         self.symbols = self._get_symbols()
         self.ignored_symbols = [LrSymbol(symbol) for symbol in ignored_tokens]
         self.build_lr0_automaton()
@@ -188,7 +188,7 @@ class SLR:
     def first(self):
         first_sets = {}
         for head in self.productions.keys():
-            first_sets[head] = self._first(head, set())
+            first_sets[head] = self._first(head, {})
         return first_sets
 
     def _first(self, symbol: LrSymbol, first_sets: dict) -> set[LrSymbol]:
@@ -250,7 +250,7 @@ class SLR:
                     if prod_symbol == symbol:
                         if i + 1 < len(prod):
                             next_symbol = prod[i + 1]
-                            next_symbol_first = self._first(next_symbol, set())
+                            next_symbol_first = self._first(next_symbol, {})
                             follow_set.update(next_symbol_first)
                             if LrSymbol("ε", is_epsilon=True) in next_symbol_first:
                                 follow_set.update(self._follow(head, seen))

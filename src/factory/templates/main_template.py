@@ -13,9 +13,8 @@ def main(code_path: str):
     )
     parser.build_lr0_automaton()
 
-    while lexer.has_next_token():
-        token = lexer.get_next_token()
-        print(token)
+    print(f"First: {parser.first()}")
+    print(f"Follow: {parser.follow()}")
 
 
 if __name__ == "__main__":
