@@ -255,3 +255,30 @@ class SLR:
 
         follow_sets[symbol] = follow_set
         return follow_set
+
+    def build_parsing_table(self):
+        """
+        Build the LR(0) parsing table
+        """
+        # Set the table up
+        table = {}
+        for lr_set in self.all_sets:
+            table[lr_set.set_id] = {
+                "actions": {},
+                "gotos": {}
+            }
+            for symbol in self.symbols:
+                if symbol.is_terminal:
+                    table[lr_set.set_id]["actions"][symbol] = None
+                elif not symbol.is_dot:
+                    table[lr_set.set_id]["gotos"][symbol] = None
+
+        # Fill the table
+        sentinel = LrSymbol("$", is_sentinel=True)
+        dot = LrSymbol("•", is_dot=True)
+        for lr_set in self.all_sets:
+            for production_head, productions in lr_set.closure_prods.items():
+                for production_body in productions:
+                    # Accept
+                    if production_head == self.augmented_start_symbol and production_body[-1] == dot:
+                        table[lr_set.set_id]["actions"][sentinel] = ("ACCEPT", None)
