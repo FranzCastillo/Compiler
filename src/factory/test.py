@@ -3,8 +3,8 @@ from src.factory.factory import Factory
 
 def main():
     factory = Factory(
-        yalex_path="D:\\UVG\\Compiladores\\Compiler\\other\\yal\\TEST.yal",
-        yapar_path="D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\TEST.yalp",
+        yalex_path="D:\\UVG\\Compiladores\\Compiler\\other\\yal\\EASY.yal",
+        yapar_path="D:\\UVG\\Compiladores\\Compiler\\other\\yalp\\EASY.yalp",
         output_path="D:\\UVG\\Compiladores\\Compiler\\other\\output"
     )
     factory.create_analyzer()

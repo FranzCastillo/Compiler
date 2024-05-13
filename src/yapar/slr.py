@@ -69,12 +69,13 @@ class SLR:
         self.symbols = self._get_symbols()
         self.ignored_symbols = [LrSymbol(symbol) for symbol in ignored_tokens]
         self.build_lr0_automaton()
+        self.parsing_table = None
 
     def _get_symbols(self) -> set[LrSymbol]:
         """
         Get the symbols from the tokens
         """
-        symbols = {LrSymbol(symbol) for symbol in self.tokens}
+        symbols = {LrSymbol(symbol, is_terminal=True) for symbol in self.tokens}
 
         for head, body in self.augmented_productions.items():
             symbols.add(head)
@@ -83,7 +84,7 @@ class SLR:
                     if symbol not in symbols:
                         symbols.add(symbol)
 
-        symbols.add(LrSymbol("$", is_sentinel=True))
+        symbols.add(LrSymbol("$", is_sentinel=True, is_terminal=True))
 
         return symbols
 
@@ -256,17 +257,14 @@ class SLR:
         follow_sets[symbol] = follow_set
         return follow_set
 
-    def build_parsing_table(self):
+    def build_parsing_table(self) -> None:
         """
         Build the LR(0) parsing table
         """
         # Set the table up
         table = {}
         for lr_set in self.all_sets:
-            table[lr_set.set_id] = {
-                "actions": {},
-                "gotos": {}
-            }
+            table[lr_set.set_id] = {"actions": {}, "gotos": {}}
             for symbol in self.symbols:
                 if symbol.is_terminal:
                     table[lr_set.set_id]["actions"][symbol] = None
@@ -279,6 +277,23 @@ class SLR:
         for lr_set in self.all_sets:
             for production_head, productions in lr_set.closure_prods.items():
                 for production_body in productions:
-                    # Accept
-                    if production_head == self.augmented_start_symbol and production_body[-1] == dot:
-                        table[lr_set.set_id]["actions"][sentinel] = ("ACCEPT", None)
+                    if production_body[-1] == dot:
+                        # Accept
+                        if production_head == self.augmented_start_symbol:
+                            table[lr_set.set_id]["actions"][sentinel] = ("ACCEPT", None)
+                            continue
+
+                        # Reduce
+                        for symbol in self._follow(production_head, {}):
+                            if table[lr_set.set_id]["actions"][symbol] is not None:
+                                raise Exception("Grammar is not SLR")
+                            table[lr_set.set_id]["actions"][symbol] = (
+                                "REDUCE",
+                                {
+                                    'production_head': production_head,
+                                    'production_body': production_body[:-1]
+                                }
+                            )
+                        continue
+
+        self.parsing_table = table

@@ -12,6 +12,7 @@ def main(code_path: str):
         #PRODUCTIONS#
     )
     parser.build_lr0_automaton()
+    parser.build_parsing_table()
 
     print(f"First: {parser.first()}")
     print(f"Follow: {parser.follow()}")
