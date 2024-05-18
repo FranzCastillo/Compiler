@@ -16,17 +16,9 @@ def main(code_path: str):
     parser.build_parsing_table()
 
     # Start the parsing process
-    was_accepted = False
-    process: list[dict] = []
-    while lexer.has_next_token():
-        token = lexer.get_next_token()
-        action, was_accepted = parser.parse(token)
-        process.append({
-            "stack": parser.parsing_stack.copy(),
-            "symbols": parser.parsing_symbols.copy(),
-            "action": action,
-        })
+    process, was_accepted = parser.parse(lexer)
 
+    # Show the resulting table
     table = PrettyTable(["STACK", "SYMBOLS", "ACTION"])
     table.align = "l"
 

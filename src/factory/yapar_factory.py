@@ -4,6 +4,7 @@ from src.yapar.file_parser import FileParser
 def copy_slr_file(output_path: str) -> None:
     with open("../yapar/slr.py", "r", encoding='utf-8') as file:
         with open(f"{output_path}/syntactic_analyzer.py", "w", encoding='utf-8') as slr_file:
+            slr_file.write('from lexical_analyzer import Lexer\n')
             slr_file.write(
                 file.read()
                 .replace('src.regex.state_id', 'state_id')

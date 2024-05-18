@@ -304,30 +304,61 @@ class SLR:
 
         self.parsing_table = table
 
-    def parse(self, token: Token) -> tuple[str, bool]:
+    def parse(self, lex) -> tuple[list[dict], bool]:
         """
         Parse a token
         """
-        current_set = self.parsing_stack[-1]
-        token_symbol = LrSymbol(token.type)
+        lex.tokens.append(Token(0, 0, "$", "$"))
 
-        if token_symbol in self.ignored_symbols:
-            return "IGNORED", False
+        process = []
+        was_accepted = False
 
-        action = self.parsing_table[current_set.set_id]["actions"][token_symbol]
-        if not action:
-            return "ERROR", False
-        elif action[0] == "ACCEPT":
-            return "ACCEPT", True
-        elif action[0] == "SHIFT":
-            self.parsing_stack.append(action[1])
-            self.parsing_symbols.append(token_symbol)
-        elif action[0] == "REDUCE":
-            production_head = action[1]['production_head']
-            production_body = action[1]['production_body']
-            for _ in range(len(production_body)):
-                self.parsing_stack.pop()
-            current_set = self.parsing_stack[-1]
-            self.parsing_stack.append(self.parsing_table[current_set.set_id]["gotos"][production_head])
-            self.parsing_symbols.append(production_head)
-        return action, False
+        while lex.has_next_token():
+            token = lex.next_token()
+
+            current_symbol = LrSymbol(token.type)
+            current_state = self.parsing_stack[-1]
+
+            if current_symbol in self.ignored_symbols:
+                lex.get_next_token()  # Skip the token
+                continue
+
+            if current_symbol not in self.symbols:
+                raise Exception(f"Unexpected and undefined token: {current_symbol}")
+
+            action, value = self.parsing_table[current_state.set_id]["actions"][current_symbol]
+            if action is None:
+                raise Exception(f"SYNTAX ERROR {current_symbol} [{token.line}:{token.pos}]")
+
+            step = {
+                "stack": self.parsing_stack.copy(),
+                "symbols": self.parsing_symbols.copy(),
+                "action": None,
+            }
+
+            if action == "SHIFT":
+                self.parsing_stack.append(value)
+                self.parsing_symbols.append(current_symbol)
+                lex.get_next_token()
+                step["action"] = ("SHIFT", None)
+            elif action == "REDUCE":
+                production = value
+                for _ in range(len(production["production_body"])):
+                    self.parsing_stack.pop()
+                    self.parsing_symbols.pop()
+
+                current_state = self.parsing_stack[-1]
+                self.parsing_symbols.append(production["production_head"])
+                new_state = self.parsing_table[current_state.set_id]["gotos"][production["production_head"]]
+                self.parsing_stack.append(new_state)
+                step["action"] = ("REDUCE", production)
+            elif action == "ACCEPT":
+                was_accepted = True
+                step["action"] = ("ACCEPT", None)
+                break
+            else:
+                raise Exception(f"Unexpected action: {action}")
+
+            process.append(step)
+
+        return process, was_accepted
