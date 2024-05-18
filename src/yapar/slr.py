@@ -296,7 +296,7 @@ class SLR:
                             if table[lr_set.set_id]["actions"][next_symbol] is not None:
                                 raise Exception("Grammar is not SLR")
                             table[lr_set.set_id]["actions"][next_symbol] = ("SHIFT", lr_set.transitions[next_symbol])
-                        else:
-                            pass
+                        else:  # Goto
+                            table[lr_set.set_id]["gotos"][next_symbol] = lr_set.transitions[next_symbol]
 
         self.parsing_table = table
