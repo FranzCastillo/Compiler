@@ -7,6 +7,13 @@ from prettytable import PrettyTable
 
 def main(code_path: str):
     lexer = Lexer(code_path)
+
+    if lexer.errors:
+        print(f"Lexical errors found:")
+        for error in lexer.errors:
+            print(error)
+        return
+
     parser = SLR(
         #TOKENS#,
         #IGNORED_TOKENS#,

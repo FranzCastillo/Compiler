@@ -280,6 +280,7 @@ class Lexer:
         self.grammars = rebuild_grammars(
             rebuild_automatons()
         )
+        self.errors: list[Token] = []
         self.tokens = self.tokenize()
         self.symbol_table = SymbolTable()
 
@@ -341,6 +342,7 @@ class Lexer:
                         current_lexeme,
                         "ERROR"
                     )
+                    self.errors.append(new_token)
                 tokens.append(new_token)
 
                 # Update index
