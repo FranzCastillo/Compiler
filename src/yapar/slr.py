@@ -288,12 +288,15 @@ class SLR:
                             if table[lr_set.set_id]["actions"][symbol] is not None:
                                 raise Exception("Grammar is not SLR")
                             table[lr_set.set_id]["actions"][symbol] = (
-                                "REDUCE",
-                                {
-                                    'production_head': production_head,
-                                    'production_body': production_body[:-1]
-                                }
-                            )
+                                "REDUCE", {'production_head': production_head, 'production_body': production_body[:-1]})
                         continue
+                    else:  # Shift
+                        next_symbol = production_body[production_body.index(dot) + 1]
+                        if next_symbol.is_terminal:
+                            if table[lr_set.set_id]["actions"][next_symbol] is not None:
+                                raise Exception("Grammar is not SLR")
+                            table[lr_set.set_id]["actions"][next_symbol] = ("SHIFT", lr_set.transitions[next_symbol])
+                        else:
+                            pass
 
         self.parsing_table = table
