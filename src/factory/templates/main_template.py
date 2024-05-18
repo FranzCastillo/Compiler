@@ -23,7 +23,7 @@ def main(code_path: str):
     parser.build_parsing_table()
 
     # Start the parsing process
-    process, was_accepted = parser.parse(lexer)
+    process, was_accepted, error_occurred = parser.parse(lexer)
 
     # Show the resulting table
     table = PrettyTable(["STACK", "SYMBOLS", "ACTION"])
@@ -55,6 +55,9 @@ def main(code_path: str):
         print("The input was accepted!")
     else:
         print("The input was NOT accepted")
+        if error_occurred:
+            print("Syntax error: ", error_occurred)
+
 
 
 if __name__ == "__main__":

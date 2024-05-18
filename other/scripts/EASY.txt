@@ -1,1 +1,2 @@
-variable1 * var_2 + temp_var_3
+variable1 * var_2 + +
+temp + temp_var_3

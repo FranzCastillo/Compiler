@@ -1,3 +1,5 @@
+from typing import Tuple, List, Dict, Any
+
 from src.regex.state_id import StateId
 from src.structures.token import Token
 from src.yapar.lr_set import LrSet
@@ -304,7 +306,7 @@ class SLR:
 
         self.parsing_table = table
 
-    def parse(self, lex) -> tuple[list[dict], bool]:
+    def parse(self, lex) -> tuple[list[dict[str, None | tuple[str, None] | list[LrSet] | list[Any]]], bool, Token |None]:
         """
         Parse a token
         """
@@ -312,6 +314,7 @@ class SLR:
 
         process = []
         was_accepted = False
+        error_token = None
 
         while lex.has_next_token():
             token = lex.next_token()
@@ -326,9 +329,13 @@ class SLR:
             if current_symbol not in self.symbols:
                 raise Exception(f"Unexpected and undefined token: {current_symbol}")
 
-            action, value = self.parsing_table[current_state.set_id]["actions"][current_symbol]
-            if action is None:
-                raise Exception(f"SYNTAX ERROR {current_symbol} [{token.line}:{token.pos}]")
+            action_value = self.parsing_table[current_state.set_id]["actions"][current_symbol]
+
+            if action_value is None:
+                error_token = token
+                break
+
+            action, value = action_value
 
             step = {
                 "stack": self.parsing_stack.copy(),
@@ -361,4 +368,4 @@ class SLR:
 
             process.append(step)
 
-        return process, was_accepted
+        return process, was_accepted, error_token
