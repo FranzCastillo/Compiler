@@ -19,8 +19,12 @@ def main(code_path: str):
         #IGNORED_TOKENS#,
         #PRODUCTIONS#
     )
-    parser.build_lr0_automaton()
-    parser.build_parsing_table()
+    try:
+        parser.build_lr0_automaton()
+        parser.build_parsing_table()
+    except Exception as e:
+        print(f"An error occurred while building the parsing table: {e}")
+        return
 
     # Start the parsing process
     process, was_accepted, error_occurred = parser.parse(lexer)
