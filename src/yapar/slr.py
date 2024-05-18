@@ -1,4 +1,5 @@
 from src.regex.state_id import StateId
+from src.structures.token import Token
 from src.yapar.lr_set import LrSet
 from src.yapar.lr_symbol import LrSymbol
 
@@ -70,6 +71,8 @@ class SLR:
         self.ignored_symbols = [LrSymbol(symbol) for symbol in ignored_tokens]
         self.build_lr0_automaton()
         self.parsing_table = None
+        self.parsing_stack = [self.initial_set]
+        self.parsing_symbols = []
 
     def _get_symbols(self) -> set[LrSymbol]:
         """
@@ -300,3 +303,31 @@ class SLR:
                             table[lr_set.set_id]["gotos"][next_symbol] = lr_set.transitions[next_symbol]
 
         self.parsing_table = table
+
+    def parse(self, token: Token) -> tuple[str, bool]:
+        """
+        Parse a token
+        """
+        current_set = self.parsing_stack[-1]
+        token_symbol = LrSymbol(token.type)
+
+        if token_symbol in self.ignored_symbols:
+            return "IGNORED", False
+
+        action = self.parsing_table[current_set.set_id]["actions"][token_symbol]
+        if not action:
+            return "ERROR", False
+        elif action[0] == "ACCEPT":
+            return "ACCEPT", True
+        elif action[0] == "SHIFT":
+            self.parsing_stack.append(action[1])
+            self.parsing_symbols.append(token_symbol)
+        elif action[0] == "REDUCE":
+            production_head = action[1]['production_head']
+            production_body = action[1]['production_body']
+            for _ in range(len(production_body)):
+                self.parsing_stack.pop()
+            current_set = self.parsing_stack[-1]
+            self.parsing_stack.append(self.parsing_table[current_set.set_id]["gotos"][production_head])
+            self.parsing_symbols.append(production_head)
+        return action, False

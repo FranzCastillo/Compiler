@@ -9,6 +9,7 @@ def copy_slr_file(output_path: str) -> None:
                 .replace('src.regex.state_id', 'state_id')
                 .replace('src.yapar.lr_set', 'lr_set')
                 .replace('src.yapar.lr_symbol', 'lr_symbol')
+                .replace('from src.structures.token import Token', 'from custom_token import Token')
             )
 
 
