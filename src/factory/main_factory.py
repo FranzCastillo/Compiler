@@ -8,8 +8,14 @@ class Factory:
         self.yap_factory = yap_factory
 
     def create_main(self):
-        self.yal_factory.create_lex_analyzer()
+        yal_tokens = self.yal_factory.create_lex_analyzer()
         self.yap_factory.create_syntax_analyzer()
+        yapar_tokens = self.yap_factory.tokens
+
+        # Check if the tokens are valid
+        for token in yapar_tokens:
+            if token not in yal_tokens:
+                raise Exception(f"Token {token} (in .yap) not found in the .yal file")
 
         with open("templates/main_template.py", "r", encoding='utf-8') as file:
             with open(f"{self.output_path}/main.py", "w", encoding='utf-8') as main_file:

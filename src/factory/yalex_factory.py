@@ -149,6 +149,7 @@ class Factory:
         try:
             header, automatons_str, footer = self.parse_file()
             create_lex_file(header, automatons_str, footer, self.output_path)
+            return get_token_types(automatons_str)
         except Exception as e:
             raise Exception(f"Error creating the Lexical Analyzer: {e}")
 

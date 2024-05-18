@@ -1,5 +1,0 @@
-if 5 >= var then
-    var = 5
-else
-    var = 0
-end
