@@ -16,6 +16,7 @@ expression:
     expression PLUS term
   | expression MINUS term
   | term
+  | ε
 ;
 term:
     term TIMES factor

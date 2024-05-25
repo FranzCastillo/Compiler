@@ -45,6 +45,11 @@ class Factory:
         self.tokens = file.tokens
         self.ignored_tokens = file.ignored_tokens
         self.productions = file.productions
+        for production_head, productions in self.productions.items():
+            for production in productions:
+                if production == ['ε']:
+                    raise Exception("Production 'ε' is not allowed in SLR. Grammar is not SLR")
+
         copy_slr_file(self.output_path)
         copy_state_id_file(self.output_path)
         copy_lr_set_file(self.output_path)
