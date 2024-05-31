@@ -298,15 +298,18 @@ class SLR:
                     else:  # Shift
                         next_symbol = production_body[production_body.index(dot) + 1]
                         if next_symbol.is_terminal:
-                            if table[lr_set.set_id]["actions"][next_symbol] is not None:
+                            new_action = ("SHIFT", lr_set.transitions[next_symbol])
+                            if (table[lr_set.set_id]["actions"][next_symbol] is not None) and (
+                                    not (table[lr_set.set_id]["actions"][next_symbol] == new_action)):
                                 raise Exception("Grammar is not SLR")
-                            table[lr_set.set_id]["actions"][next_symbol] = ("SHIFT", lr_set.transitions[next_symbol])
+                            table[lr_set.set_id]["actions"][next_symbol] = new_action
                         else:  # Goto
                             table[lr_set.set_id]["gotos"][next_symbol] = lr_set.transitions[next_symbol]
 
         self.parsing_table = table
 
-    def parse(self, lex) -> tuple[list[dict[str, None | tuple[str, None] | list[LrSet] | list[Any]]], bool, Token |None]:
+    def parse(self, lex) -> tuple[
+        list[dict[str, None | tuple[str, None] | list[LrSet] | list[Any]]], bool, Token | None]:
         """
         Parse a token
         """
@@ -367,5 +370,9 @@ class SLR:
                 raise Exception(f"Unexpected action: {action}")
 
             process.append(step)
+
+        # Avoid returning the sentinel as an error token
+        if error_token and error_token.type == "$":
+            error_token = None
 
         return process, was_accepted, error_token

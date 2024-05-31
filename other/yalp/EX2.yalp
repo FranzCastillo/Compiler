@@ -1,0 +1,16 @@
+%token PLUS TIMES RPAREN LPAREN ID
+%token WS
+IGNORE WS
+%%
+E:
+ E PLUS T
+ | T
+;
+T:
+ T TIMES F
+ | F
+;
+F:
+ LPAREN E RPAREN
+ | ID
+;
